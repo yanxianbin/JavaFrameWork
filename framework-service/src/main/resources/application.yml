@@ -1,0 +1,15 @@
+server:
+  port: 9088
+
+spring:
+  datasource:
+    type: org.springframework.jdbc.datasource.SimpleDriverDataSource
+    url: jdbc:mysql://192.168.31.180:3306/myCat
+    driver-class-name: com.mysql.jdbc.Driver
+    username: root
+    password: 123456
+    tomcat:
+      max-idle: 10
+      max-wait: 10000
+      min-idle: 5
+      initial-size: 5
