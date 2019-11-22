@@ -1,4 +1,6 @@
-package entity;
+package com.entity;
+
+import com.Entity.BaseEntity;
 
 /**
  * 用户信息

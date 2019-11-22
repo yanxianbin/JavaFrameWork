@@ -4,9 +4,9 @@ server:
 spring:
   datasource:
     type: org.springframework.jdbc.datasource.SimpleDriverDataSource
-    url: jdbc:mysql://192.168.31.180:3306/myCat
+    url: jdbc:mysql://127.0.0.1:3306/java_framework
     driver-class-name: com.mysql.jdbc.Driver
-    username: root
+    username: yxb
     password: 123456
     tomcat:
       max-idle: 10

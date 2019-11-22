@@ -1,7 +1,7 @@
 package com.controller;
 
 import org.springframework.web.bind.annotation.RestController;
-import service.UserInfoService;
+import com.service.UserInfoService;
 
 @RestController
 public class UserInfoController implements UserInfoService {

@@ -10,18 +10,18 @@
             <property name="suppressAllComments" value="true"/>
         </commentGenerator>
         <!--数据库链接信息 -->
-        <jdbcConnection driverClass="com.mysql.jdbc.Driver" connectionURL="jdbc:mysql://127.0.0.1:3306/java_framework?serverTimezone=UTC" userId="root" password="123456">
+        <jdbcConnection driverClass="com.mysql.cj.jdbc.Driver" connectionURL="jdbc:mysql://192.168.31.180:3306/java_framework?serverTimezone=UTC" userId="yxb" password="123456">
         </jdbcConnection>
         <javaTypeResolver>
             <property name="forceBigDecimals" value="false"/>
         </javaTypeResolver>
         <!-- 生成实体类的包名和位置-->
-        <javaModelGenerator targetPackage="entity" targetProject="D:/work/generator/target/framework-api/src/main/java">
+        <javaModelGenerator targetPackage="entity" targetProject="D:/work/generator/target">
             <property name="enableSubPackages" value="true"/>
             <property name="trimStrings" value="true"/>
         </javaModelGenerator>
         <!-- 生成映射文件的包名和位置-->
-        <sqlMapGenerator targetPackage="resources.mapper" targetProject="D:/work/generator/target/framework-service/src/main/java">
+        <sqlMapGenerator targetPackage="resources.mapper" targetProject="D:/work/generator/target">
             <property name="enableSubPackages" value="true"/>
         </sqlMapGenerator>
 <!--        &lt;!&ndash; 生成DAO的包名和位置&ndash;&gt;-->
