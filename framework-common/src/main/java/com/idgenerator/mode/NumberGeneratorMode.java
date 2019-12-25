@@ -1,4 +1,4 @@
-package idgenerator.mode;
+package com.idgenerator.mode;
 
 /**
  * 业务编码生成实体

@@ -1,4 +1,6 @@
-package annotation;
+package com.annotation;
+
+import org.springframework.stereotype.Component;
 
 import java.lang.annotation.*;
 
@@ -8,6 +10,7 @@ import java.lang.annotation.*;
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
+@Component
 public @interface NumbGenConfigAnnotation {
     /**
      * 业务编码

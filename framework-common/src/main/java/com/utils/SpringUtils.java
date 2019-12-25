@@ -1,4 +1,4 @@
-package utils;
+package com.utils;
 
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;

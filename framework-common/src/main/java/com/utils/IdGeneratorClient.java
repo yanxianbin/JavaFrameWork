@@ -1,6 +1,6 @@
-package utils;
+package com.utils;
 
-import idgenerator.IdGeneratorService;
+import com.idgenerator.IdGeneratorService;
 
 /**
  * Id 工具类
