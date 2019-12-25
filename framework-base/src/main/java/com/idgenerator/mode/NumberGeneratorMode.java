@@ -21,7 +21,7 @@ public class NumberGeneratorMode {
     private int step=1;
 
     /**
-     * 编码格式 如：codePre{0}-{1} 仅支持两个占位符
+     * 编码格式 如：BM{0}-{1} 仅支持两个占位符  分割符中间仅支持：【:或者-】
      */
     private String numberFormat;
 

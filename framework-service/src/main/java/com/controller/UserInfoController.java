@@ -1,19 +1,14 @@
 package com.controller;
 
-import com.idgenerator.NumberGeneratorService;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.utils.IdGeneratorClient;
+import com.utils.JsonUtils;
 import org.springframework.web.bind.annotation.RestController;
 import com.service.UserInfoService;
-import com.redis.RedisTemplateService;
+
+import java.util.List;
 
 @RestController
 public class UserInfoController implements UserInfoService {
-
-    @Autowired
-    private RedisTemplateService redisTemplateService;
-
-    @Autowired
-    private NumberGeneratorService numberGeneratorService;
 
     @Override
     public Boolean isAdminUser(String userName) {
@@ -22,8 +17,10 @@ public class UserInfoController implements UserInfoService {
 
     @Override
     public String getNumber(String numberCode, Integer size) {
-        String number=numberGeneratorService.nextNumber(numberCode);
-        return number;
+        String number= IdGeneratorClient.getNumber(numberCode);
+        List<String> numbers=IdGeneratorClient.getNumberList(numberCode,size);
+        numbers.add(number);
+        return JsonUtils.deSerializable(numbers);
     }
 
 }

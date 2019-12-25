@@ -1,14 +1,14 @@
 package com.idgenerator;
 
-import ch.qos.logback.core.util.TimeUtil;
-import com.annotation.NumbGenConfigAnnotation;
+import com.annotations.NumbGenConfigAnnotation;
 import com.idgenerator.mode.NumberGeneratorMode;
 import com.redis.RedisTemplateService;
 import com.utils.CommonUtils;
+import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.RegExUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
-import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,6 +27,8 @@ public class NumberGeneratorService {
      * 存储业务数据
      */
     private final String NUMBER_CODE_KEY="NUMBER_CODE_HAS_SET";
+
+    private final String REDIS_KEY_REPLACE_REGEX = "(\\{([^-|^:|^])*\\})";
 
     /**
      * 注册业务编码
@@ -65,10 +67,29 @@ public class NumberGeneratorService {
         String redisKey=mode.getNumberCode()+ dateFormat;
         for(int i=0;i<size;i++){
            long id= redisTemplateService.increment(redisKey,mode.getStep());
-           String number=String.format(mode.getNumberFormat(),dateFormat,String.format("%%s%s%s",mode.getSequenceLength(),mode.getLeftPadChar(),id));
+           redisTemplateService.expireKey(redisKey);
+           String formatStr="%".concat(mode.getLeftPadChar()).concat(mode.getSequenceLength()+"").concat("d");
+           String seqStr=String.format(formatStr,id);
+           String number=buildKey(mode.getNumberFormat(),dateFormat,seqStr);
            numberList.add(number);
         }
         return numberList;
+    }
+
+    /**
+     * 构建编码
+     * @param expression
+     * @param args
+     * @return
+     */
+    private String buildKey(String expression, String... args){
+        String key = expression;
+        if(ArrayUtils.isNotEmpty(args)){
+            for (String value : args) {
+                key = RegExUtils.replaceFirst(key, REDIS_KEY_REPLACE_REGEX, value);
+            }
+        }
+        return key;
     }
 
     /**

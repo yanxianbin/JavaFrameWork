@@ -1,25 +1,57 @@
 package com.utils;
 
-import java.sql.Timestamp;
-import java.util.UUID;
+import com.idgenerator.IdGeneratorService;
+import com.idgenerator.NumberGeneratorService;
 
+import java.util.List;
+
+/**
+ * Id 工具类
+ */
 public class IdGeneratorClient {
 
+    private static IdGeneratorService idGeneratorService;
+
+    private static NumberGeneratorService numberGeneratorService;
+
     /**
-     * 获取字符ID
+     * 获取ID
      * @return
      */
-    private static String getGuidId(){
-        String id= UUID.randomUUID().toString().replace("-","");
-        return id;
+    public static Long getId(){
+        return getIdGeneratorService().nextId();
     }
 
     /**
-     * 获取数值ID
+     * 获取业务编码
+     * @param numberCode
      * @return
      */
-    private static Long getLongId(){
-        Long timespan=new Timestamp(System.currentTimeMillis()).getTime();
-        return timespan;
+    public static String getNumber(String numberCode){
+       return getNumberGenService().nextNumber(numberCode);
+    }
+
+    /**
+     * 获取业务编码集合，指定获取多少个
+     * @param numberCode
+     * @param size
+     * @return
+     */
+    public static List<String> getNumberList(String numberCode,int size){
+        return getNumberGenService().nextNumbers(numberCode,size);
+    }
+
+    private static IdGeneratorService getIdGeneratorService(){
+        if(idGeneratorService==null){
+            idGeneratorService=SpringUtils.getBean(IdGeneratorService.class);
+        }
+        return idGeneratorService;
+    }
+
+    private static NumberGeneratorService getNumberGenService(){
+        if(numberGeneratorService==null){
+            numberGeneratorService=SpringUtils.getBean(NumberGeneratorService.class);
+        }
+        return numberGeneratorService;
     }
 }

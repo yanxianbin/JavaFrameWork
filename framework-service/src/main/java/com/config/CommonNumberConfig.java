@@ -1,6 +1,6 @@
 package com.config;
 
-import com.annotation.NumbGenConfigAnnotation;
+import com.annotations.NumbGenConfigAnnotation;
 import org.springframework.context.annotation.Configuration;
 
 /**

@@ -22,7 +22,7 @@ public class RedisAbstractService {
     /**
      * 默认过期时长，单位：秒
      */
-    protected  static final long DEFAULT_EXPIRE = 60 * 60 * 24;
+    public static final long DEFAULT_EXPIRE = 60 * 60 * 24;
 
     /**
      * 不设置过期时长
@@ -92,6 +92,15 @@ public class RedisAbstractService {
      */
     public void expireKey(String key, long time, TimeUnit timeUnit) {
         redisTemplate.expire(key, time, timeUnit);
+    }
+
+    /**
+     * 设置key的生命周期 默认一天
+     *
+     * @param key
+     */
+    public void expireKey(String key) {
+        redisTemplate.expire(key, DEFAULT_EXPIRE, TimeUnit.SECONDS);
     }
 
     /**

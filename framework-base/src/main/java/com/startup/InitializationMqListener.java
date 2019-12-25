@@ -1,8 +1,12 @@
-package com.sevice.startup;
+package com.startup;
 
 import com.annotations.EndPointListener;
+import com.annotations.NumbGenConfigAnnotation;
+import com.idgenerator.NumberGeneratorService;
 import com.sevice.MessageConsumer;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.ApplicationContext;
@@ -17,17 +21,25 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @Component
 @Order(1)
+@Slf4j
 public class InitializationMqListener implements ApplicationRunner, ApplicationContextAware {
 
     /**
      * 线程安全的Map
      */
     private static final Map<String,MessageConsumer> consumerMap=new ConcurrentHashMap<>();
+
+    private final Map<String,Object> numberConfigMap=new ConcurrentHashMap<>();
+
+    @Autowired
+    private NumberGeneratorService numberGeneratorService;
+
     @Override
     public void run(ApplicationArguments args) throws Exception {
         for(Map.Entry<String,MessageConsumer> entry: consumerMap.entrySet()){
-            System.out.println("application started queueName:"+entry.getKey());
+            log.info("application started queueName:{}",entry.getKey());
         }
+        numberGeneratorService.registerNumberConfig(numberConfigMap);
     }
 
     @Override
@@ -41,6 +53,7 @@ public class InitializationMqListener implements ApplicationRunner, ApplicationC
             String queueName= endPointListener.queueName();
             consumerMap.put(queueName,consumer);
         }
+        initNumberGenConfig(applicationContext);
     }
 
     /**
@@ -50,5 +63,16 @@ public class InitializationMqListener implements ApplicationRunner, ApplicationC
      */
     public static MessageConsumer getConsumer(String queueName){
         return consumerMap.get(queueName);
+    }
+
+    /**
+     * 注册业务编码
+     * @param context
+     */
+    private void initNumberGenConfig(ApplicationContext context){
+        Map<String, Object> configs=context.getBeansWithAnnotation(NumbGenConfigAnnotation.class);
+        for(Map.Entry<String,Object> entry:configs.entrySet()){
+            numberConfigMap.put(entry.getKey(),entry.getValue());
+        }
     }
 }
