@@ -11,7 +11,7 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 @Component
-public @interface EndPointListener {
+public @interface MqListenerEndPoint {
     /**
      * 队列名称
      * @return

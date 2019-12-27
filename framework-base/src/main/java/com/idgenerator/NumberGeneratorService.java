@@ -1,12 +1,11 @@
 package com.idgenerator;
 
-import com.annotations.NumbGenConfigAnnotation;
+import com.annotations.SerialNumberAnnotation;
 import com.idgenerator.mode.NumberGeneratorMode;
-import com.redis.RedisTemplateService;
 import com.utils.CommonUtils;
+import com.utils.RedisUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.RegExUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
@@ -19,9 +18,6 @@ import java.util.Map;
  */
 @Component
 public class NumberGeneratorService {
-
-    @Autowired
-    private RedisTemplateService redisTemplateService;
 
     /**
      * 存储业务数据
@@ -39,7 +35,7 @@ public class NumberGeneratorService {
         if (configMap != null && !configMap.isEmpty()) {
             for (Map.Entry<String, Object> entry : configMap.entrySet()) {
                 NumberGeneratorMode configValue = parseAnnotation(entry.getValue());
-                redisTemplateService.hashSet(NUMBER_CODE_KEY, configValue.getNumberCode(), configValue);
+                RedisUtils.hashSet(NUMBER_CODE_KEY, configValue.getNumberCode(), configValue);
             }
         }
     }
@@ -60,14 +56,14 @@ public class NumberGeneratorService {
      * @return
      */
     public List<String> nextNumbers(String numberCode, long size){
-        NumberGeneratorMode mode=(NumberGeneratorMode)redisTemplateService.hashGet(NUMBER_CODE_KEY,numberCode);
+        NumberGeneratorMode mode=(NumberGeneratorMode)RedisUtils.hashGet(NUMBER_CODE_KEY,numberCode);
         Assert.notNull(mode,"业务编码未注册");
         List<String> numberList=new ArrayList<>();
         String dateFormat=CommonUtils.getNowDateFormat(mode.getCodeFormat());
         String redisKey=mode.getNumberCode()+ dateFormat;
         for(int i=0;i<size;i++){
-           long id= redisTemplateService.increment(redisKey,mode.getStep());
-           redisTemplateService.expireKey(redisKey);
+           long id= RedisUtils.increment(redisKey,mode.getStep());
+            RedisUtils.expireKey(redisKey);
            String formatStr="%".concat(mode.getLeftPadChar()).concat(mode.getSequenceLength()+"").concat("d");
            String seqStr=String.format(formatStr,id);
            String number=buildKey(mode.getNumberFormat(),dateFormat,seqStr);
@@ -98,7 +94,7 @@ public class NumberGeneratorService {
      * @return
      */
     private NumberGeneratorMode parseAnnotation(Object obj){
-        NumbGenConfigAnnotation configAnnotation= obj.getClass().getAnnotation(NumbGenConfigAnnotation.class);
+        SerialNumberAnnotation configAnnotation= obj.getClass().getAnnotation(SerialNumberAnnotation.class);
         NumberGeneratorMode mode=new NumberGeneratorMode();
         mode.setCodeFormat(configAnnotation.codeFormat());
         mode.setLeftPadChar(configAnnotation.leftPadChar());

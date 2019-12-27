@@ -1,9 +1,7 @@
 package com.redis;
 
-import com.utils.JsonUtils;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.utils.SpringUtils;
 import org.springframework.data.redis.core.*;
-import org.springframework.stereotype.Component;
 
 import java.sql.Date;
 import java.util.Collection;
@@ -13,11 +11,16 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-@Component
 public class RedisAbstractService {
 
-    @Autowired
-    protected RedisTemplate redisTemplate;
+    private static RedisTemplate redisTemplate;
+
+    protected static RedisTemplate getRedisTemplate(){
+        if(redisTemplate==null){
+            redisTemplate=SpringUtils.getBean("redisTemplate");
+        }
+        return redisTemplate;
+    }
 
     /**
      * 默认过期时长，单位：秒
@@ -29,8 +32,8 @@ public class RedisAbstractService {
      */
     protected static final long NOT_EXPIRE = -1;
 
-    public boolean existsKey(String key) {
-        return redisTemplate.hasKey(key);
+    public static boolean existsKey(String key) {
+        return getRedisTemplate().hasKey(key);
     }
 
     /**
@@ -39,8 +42,8 @@ public class RedisAbstractService {
      * @param oldKey
      * @param newKey
      */
-    public void renameKey(String oldKey, String newKey) {
-        redisTemplate.rename(oldKey, newKey);
+    public static void renameKey(String oldKey, String newKey) {
+        getRedisTemplate().rename(oldKey, newKey);
     }
 
     /**
@@ -50,8 +53,8 @@ public class RedisAbstractService {
      * @param newKey
      * @return 修改成功返回true
      */
-    public boolean renameKeyNotExist(String oldKey, String newKey) {
-        return redisTemplate.renameIfAbsent(oldKey, newKey);
+    public static boolean renameKeyNotExist(String oldKey, String newKey) {
+        return getRedisTemplate().renameIfAbsent(oldKey, newKey);
     }
 
     /**
@@ -59,8 +62,8 @@ public class RedisAbstractService {
      *
      * @param key
      */
-    public void deleteKey(String key) {
-        redisTemplate.delete(key);
+    public static void deleteKey(String key) {
+        getRedisTemplate().delete(key);
     }
 
     /**
@@ -68,9 +71,9 @@ public class RedisAbstractService {
      *
      * @param keys
      */
-    public void deleteKey(String... keys) {
+    public static void deleteKey(String... keys) {
         Set<String> kSet = Stream.of(keys).map(k -> k).collect(Collectors.toSet());
-        redisTemplate.delete(kSet);
+        getRedisTemplate().delete(kSet);
     }
 
     /**
@@ -78,9 +81,9 @@ public class RedisAbstractService {
      *
      * @param keys
      */
-    public void deleteKey(Collection<String> keys) {
+    public static void deleteKey(Collection<String> keys) {
         Set<String> kSet = keys.stream().map(k -> k).collect(Collectors.toSet());
-        redisTemplate.delete(kSet);
+        getRedisTemplate().delete(kSet);
     }
 
     /**
@@ -90,8 +93,8 @@ public class RedisAbstractService {
      * @param time
      * @param timeUnit
      */
-    public void expireKey(String key, long time, TimeUnit timeUnit) {
-        redisTemplate.expire(key, time, timeUnit);
+    public static void expireKey(String key, long time, TimeUnit timeUnit) {
+        getRedisTemplate().expire(key, time, timeUnit);
     }
 
     /**
@@ -99,8 +102,8 @@ public class RedisAbstractService {
      *
      * @param key
      */
-    public void expireKey(String key) {
-        redisTemplate.expire(key, DEFAULT_EXPIRE, TimeUnit.SECONDS);
+    public static void expireKey(String key) {
+        getRedisTemplate().expire(key, DEFAULT_EXPIRE, TimeUnit.SECONDS);
     }
 
     /**
@@ -110,7 +113,7 @@ public class RedisAbstractService {
      * @param date
      */
     public void expireKeyAt(String key, Date date) {
-        redisTemplate.expireAt(key, date);
+        getRedisTemplate().expireAt(key, date);
     }
 
     /**
@@ -120,8 +123,8 @@ public class RedisAbstractService {
      * @param timeUnit
      * @return
      */
-    public long getKeyExpire(String key, TimeUnit timeUnit) {
-        return redisTemplate.getExpire(key, timeUnit);
+    public static long getKeyExpire(String key, TimeUnit timeUnit) {
+        return getRedisTemplate().getExpire(key, timeUnit);
     }
 
     /**
@@ -129,8 +132,8 @@ public class RedisAbstractService {
      *
      * @param key
      */
-    public void persistKey(String key) {
-        redisTemplate.persist(key);
+    public static void persistKey(String key) {
+        getRedisTemplate().persist(key);
     }
 
     /**
@@ -138,16 +141,16 @@ public class RedisAbstractService {
      * @param key
      * @param value
      */
-    public void set(String key,Object value){
-        redisTemplate.opsForValue().set(key, value);
+    public static void set(String key,Object value){
+        getRedisTemplate().opsForValue().set(key, value);
     }
 
     /**
      * get操作
      * @param key
      */
-    public Object get(String key){
-        return redisTemplate.opsForValue().get(key);
+    public static Object get(String key){
+        return getRedisTemplate().opsForValue().get(key);
     }
 
     /**
@@ -156,8 +159,8 @@ public class RedisAbstractService {
      * @param value
      * @param timeOut
      */
-    public void set(String key,Object value,long timeOut){
-        redisTemplate.opsForValue().set(key, JsonUtils.deSerializable(value),timeOut, TimeUnit.SECONDS);
+    public static void set(String key,Object value,long timeOut){
+        getRedisTemplate().opsForValue().set(key, value,timeOut, TimeUnit.SECONDS);
     }
 
     /**
@@ -165,8 +168,8 @@ public class RedisAbstractService {
      * @param key
      * @return
      */
-    public long increment(String key){
-        return redisTemplate.opsForValue().increment(key,1L);
+    public static long increment(String key){
+        return getRedisTemplate().opsForValue().increment(key,1L);
     }
 
     /**
@@ -174,8 +177,8 @@ public class RedisAbstractService {
      * @param key
      * @return
      */
-    public long deIncrement(String key){
-        return redisTemplate.opsForValue().increment(key,-1L);
+    public static long deIncrement(String key){
+        return getRedisTemplate().opsForValue().increment(key,-1L);
     }
 
     /**
@@ -184,8 +187,8 @@ public class RedisAbstractService {
      * @param inc
      * @return
      */
-    public long increment(String key,long inc){
-        return redisTemplate.opsForValue().increment(key,inc);
+    public static long increment(String key,long inc){
+        return getRedisTemplate().opsForValue().increment(key,inc);
     }
 
     /**
@@ -194,8 +197,8 @@ public class RedisAbstractService {
      * @param hKey
      * @param value
      */
-    public void hashSet(String key,String hKey,Object value){
-        redisTemplate.opsForHash().put(key,hKey,value);
+    public static void hashSet(String key,String hKey,Object value){
+        getRedisTemplate().opsForHash().put(key,hKey,value);
     }
 
     /**
@@ -203,8 +206,8 @@ public class RedisAbstractService {
      * @param key
      * @param hKey
      */
-    public Object hashGet(String key,String hKey){
-        Object val= redisTemplate.opsForHash().get(key,hKey);
+    public static Object hashGet(String key,String hKey){
+        Object val= getRedisTemplate().opsForHash().get(key,hKey);
         return val;
     }
 
@@ -213,8 +216,8 @@ public class RedisAbstractService {
      * @param key
      * @param hKey
      */
-    public void hashDel(String key,String hKey){
-        redisTemplate.opsForHash().delete(key,hKey);
+    public static void hashDel(String key,String hKey){
+        getRedisTemplate().opsForHash().delete(key,hKey);
     }
 
     /**
@@ -222,8 +225,8 @@ public class RedisAbstractService {
      * @param key
      * @param value
      */
-    public void rightPush(String key,Object value){
-        redisTemplate.opsForList().rightPush(key,value);
+    public static void rightPush(String key,Object value){
+        getRedisTemplate().opsForList().rightPush(key,value);
     }
 
     /**
@@ -231,22 +234,22 @@ public class RedisAbstractService {
      * @param key
      * @param value
      */
-    public void leftPush(String key,Object value){
-        redisTemplate.opsForList().leftPush(key,value);
+    public static void leftPush(String key,Object value){
+        getRedisTemplate().opsForList().leftPush(key,value);
     }
 
-    public Object leftPop(String key){
-       Object value= redisTemplate.opsForList().leftPop(key,1,TimeUnit.SECONDS);
+    public static Object leftPop(String key){
+       Object value= getRedisTemplate().opsForList().leftPop(key,1,TimeUnit.SECONDS);
        return value;
     }
 
-    public Object rightPop(String key){
-        Object value= redisTemplate.opsForList().rightPop(key,1,TimeUnit.SECONDS);
+    public static Object rightPop(String key){
+        Object value= getRedisTemplate().opsForList().rightPop(key,1,TimeUnit.SECONDS);
         return value;
     }
     
-    public List<Object> listAll(String key){
-        List<Object> value= redisTemplate.opsForList().range(key,1,-1);
+    public static List<Object> listAll(String key){
+        List<Object> value= getRedisTemplate().opsForList().range(key,1,-1);
         return value;
     }
 }

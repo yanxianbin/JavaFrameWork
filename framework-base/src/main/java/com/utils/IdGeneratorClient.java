@@ -6,7 +6,7 @@ import com.idgenerator.NumberGeneratorService;
 import java.util.List;
 
 /**
- * Id 工具类
+ * Id和业务编码生成工具类
  */
 public class IdGeneratorClient {
 

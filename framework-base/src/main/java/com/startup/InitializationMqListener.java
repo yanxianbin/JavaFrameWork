@@ -1,8 +1,9 @@
 package com.startup;
 
-import com.annotations.EndPointListener;
-import com.annotations.NumbGenConfigAnnotation;
+import com.annotations.MqListenerEndPoint;
+import com.annotations.SerialNumberAnnotation;
 import com.idgenerator.NumberGeneratorService;
+import com.rabbitmq.MqServiceClient;
 import com.sevice.MessageConsumer;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeansException;
@@ -34,22 +35,24 @@ public class InitializationMqListener implements ApplicationRunner, ApplicationC
     @Autowired
     private NumberGeneratorService numberGeneratorService;
 
+    @Autowired
+    private MqServiceClient mqListenerInitService;
+
     @Override
     public void run(ApplicationArguments args) throws Exception {
-        for(Map.Entry<String,MessageConsumer> entry: consumerMap.entrySet()){
-            log.info("application started queueName:{}",entry.getKey());
-        }
+        //启动Mq监听
+        mqListenerInitService.initListenerContainer(consumerMap);
         numberGeneratorService.registerNumberConfig(numberConfigMap);
     }
 
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-        String[] queueEndpoints = applicationContext.getBeanNamesForAnnotation(EndPointListener.class);
+        String[] queueEndpoints = applicationContext.getBeanNamesForAnnotation(MqListenerEndPoint.class);
         List<String> queueList = Arrays.asList(queueEndpoints);
 
         for(String bean : queueList){
             MessageConsumer consumer=(MessageConsumer) applicationContext.getBean(bean);
-            EndPointListener endPointListener= consumer.getClass().getAnnotation(EndPointListener.class);
+            MqListenerEndPoint endPointListener= consumer.getClass().getAnnotation(MqListenerEndPoint.class);
             String queueName= endPointListener.queueName();
             consumerMap.put(queueName,consumer);
         }
@@ -70,7 +73,7 @@ public class InitializationMqListener implements ApplicationRunner, ApplicationC
      * @param context
      */
     private void initNumberGenConfig(ApplicationContext context){
-        Map<String, Object> configs=context.getBeansWithAnnotation(NumbGenConfigAnnotation.class);
+        Map<String, Object> configs=context.getBeansWithAnnotation(SerialNumberAnnotation.class);
         for(Map.Entry<String,Object> entry:configs.entrySet()){
             numberConfigMap.put(entry.getKey(),entry.getValue());
         }

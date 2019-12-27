@@ -1,6 +1,6 @@
 package com.config;
 
-import com.annotations.NumbGenConfigAnnotation;
+import com.annotations.SerialNumberAnnotation;
 import org.springframework.context.annotation.Configuration;
 
 /**
@@ -12,6 +12,6 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class CommonNumberConfig {
 
-    @NumbGenConfigAnnotation(numberCode = "common-code",numberDesc = "测试用的",numberFormat = "BM-{0}-{1}")
+    @SerialNumberAnnotation(numberCode = "common-code",numberDesc = "测试用的",numberFormat = "BM-{0}-{1}")
     public class CommonNumber{}
 }

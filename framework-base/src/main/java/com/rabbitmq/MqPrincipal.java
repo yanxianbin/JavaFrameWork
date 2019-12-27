@@ -13,8 +13,6 @@ public class MqPrincipal implements Serializable {
 
     private String routingKey;
 
-    private int maxRetryCount=10;
-
     public String getQueueName() {
         return queueName;
     }
@@ -37,13 +35,5 @@ public class MqPrincipal implements Serializable {
 
     public void setRoutingKey(String routingKey) {
         this.routingKey = routingKey;
-    }
-
-    public int getMaxRetryCount() {
-        return maxRetryCount;
-    }
-
-    public void setMaxRetryCount(int maxRetryCount) {
-        this.maxRetryCount = maxRetryCount;
     }
 }

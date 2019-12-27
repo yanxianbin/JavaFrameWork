@@ -1,6 +1,7 @@
 package com.rabbitmq;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.utils.IdGeneratorClient;
 
 import java.io.Serializable;
 import java.sql.Timestamp;
@@ -24,7 +25,7 @@ public class MessageMode implements Serializable {
     /**
      * 消息ID
      */
-    private Long messageId= System.currentTimeMillis();
+    private Long messageId= IdGeneratorClient.getId();
 
     /**
      * 创建时间
@@ -35,6 +36,16 @@ public class MessageMode implements Serializable {
      * 消息来源，一般是多系统用到的时候，这里是服务名称
      */
     private String messageFrom;
+
+    /**
+     * 优先级
+     */
+    private Integer priority=100;
+
+    /**
+     * 是否自动创建队列
+     */
+    private Boolean isAutoDeclare=true;
 
     public MqPrincipal getPrincipal() {
         return principal;
@@ -74,5 +85,21 @@ public class MessageMode implements Serializable {
 
     public void setMessageFrom(String messageFrom) {
         this.messageFrom = messageFrom;
+    }
+
+    public Integer getPriority() {
+        return priority;
+    }
+
+    public void setPriority(Integer priority) {
+        this.priority = priority;
+    }
+
+    public Boolean getAutoDeclare() {
+        return isAutoDeclare;
+    }
+
+    public void setAutoDeclare(Boolean autoDeclare) {
+        isAutoDeclare = autoDeclare;
     }
 }

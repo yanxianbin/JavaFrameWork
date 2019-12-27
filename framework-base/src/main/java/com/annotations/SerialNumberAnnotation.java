@@ -11,7 +11,7 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 @Component
-public @interface NumbGenConfigAnnotation {
+public @interface SerialNumberAnnotation {
     /**
      * 业务编码
      */
