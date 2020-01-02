@@ -1,6 +1,7 @@
 package com.startup;
 
 import com.annotations.MqListenerEndPoint;
+import com.annotations.MqListenerEndPointDelay;
 import com.annotations.SerialNumberAnnotation;
 import com.idgenerator.NumberGeneratorService;
 import com.rabbitmq.MqServiceClient;
@@ -15,6 +16,7 @@ import org.springframework.context.ApplicationContextAware;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
+import java.lang.annotation.Annotation;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -38,6 +40,9 @@ public class InitializationMqListener implements ApplicationRunner, ApplicationC
     @Autowired
     private MqServiceClient mqListenerInitService;
 
+    //延时队列后缀
+    private static final String DLQ_DELAY_SUFFIX=".DELAY";
+
     @Override
     public void run(ApplicationArguments args) throws Exception {
         //启动Mq监听
@@ -52,8 +57,16 @@ public class InitializationMqListener implements ApplicationRunner, ApplicationC
 
         for(String bean : queueList){
             MessageConsumer consumer=(MessageConsumer) applicationContext.getBean(bean);
-            MqListenerEndPoint endPointListener= consumer.getClass().getAnnotation(MqListenerEndPoint.class);
-            String queueName= endPointListener.queueName();
+            Annotation annotation=consumer.getClass().getAnnotations()[0];
+            String queueName="";
+            if(annotation instanceof MqListenerEndPoint) {
+                MqListenerEndPoint endPointListener = (MqListenerEndPoint)annotation;
+                queueName= endPointListener.queueName();
+            }else {
+                MqListenerEndPointDelay endPointListener = (MqListenerEndPointDelay)annotation;
+                queueName = endPointListener.queueName();
+                queueName += DLQ_DELAY_SUFFIX;
+            }
             consumerMap.put(queueName,consumer);
         }
         initNumberGenConfig(applicationContext);

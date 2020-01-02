@@ -14,6 +14,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * @Classname MqListenerInitService
@@ -34,12 +35,17 @@ public class MqServiceClient {
     @Value(value = "${spring.rabbitmq.maxretrys:10}")
     private int maxRetryCount;
 
-    public static final String X_MAX_PRIORITY_HEADER = "x-max-priority";
-    public static final int DEFAULT_MAX_PRIORITY = 100;
-    public static final String X_DEAD_LETTER_EXCHANGE = "x-dead-letter-exchange";
-    public static final String X_DEAD_LETTER_ROUTING_KEY = "x-dead-letter-routing-key";
-    public static final String DLQ_ROUTING_EXCHANGE = "comm.deal.exchange";
-    public static final String DLQ_NAME = "comm.deal.queue";
+    private static final String X_MAX_PRIORITY_HEADER = "x-max-priority";
+    private static final int DEFAULT_MAX_PRIORITY = 100;
+    private static final String X_DEAD_LETTER_EXCHANGE = "x-dead-letter-exchange";
+    private static final String X_DEAD_LETTER_ROUTING_KEY = "x-dead-letter-routing-key";
+    private static final String DLQ_ROUTING_EXCHANGE = "comm.deal.exchange";
+    private static final String DLQ_NAME = "comm.deal.queue";
+    //延时队列-过期时间
+    private static final String X_MESSAGE_TTL_HEADER = "x-message-ttl";
+    //延时队列后缀
+    private static final String DLQ_DELAY_SUFFIX=".DELAY";
+
 
     @Autowired
     private RabbitTemplate rabbitTemplate;
@@ -63,6 +69,31 @@ public class MqServiceClient {
             DirectExchange ex = new DirectExchange(exchangeName);
             rabbitAdmin.declareExchange(ex);
             Queue q = createQueue(queueName);
+            rabbitAdmin.declareQueue(q);
+            rabbitAdmin.declareBinding(BindingBuilder.bind(q).to(ex).with(routingKey));
+        }
+        rabbitTemplate.convertAndSend(exchangeName, routingKey, messageMode, message -> {
+            //设置消息的优先级
+            message.getMessageProperties().setPriority(messageMode.getPriority());
+            //持久化
+            message.getMessageProperties().setDeliveryMode(MessageDeliveryMode.PERSISTENT);
+            return message;
+        },new CorrelationData(String.valueOf(messageMode.getMessageId())));
+    }
+
+    /**
+     * 发送消息到队列中-延迟队列
+     * @param routingKey
+     * @param exchangeName
+     * @param queueName
+     * @param messageMode
+     */
+    public void sendMqMessage(String routingKey, String exchangeName, String queueName, MessageMode messageMode,Long ttl) {
+        if (messageMode.getAutoDeclare()) {
+            createDelayQueue(queueName,exchangeName,routingKey);
+            DirectExchange ex = new DirectExchange(exchangeName);
+            rabbitAdmin.declareExchange(ex);
+            Queue q = createQueue(queueName,exchangeName,routingKey,ttl);
             rabbitAdmin.declareQueue(q);
             rabbitAdmin.declareBinding(BindingBuilder.bind(q).to(ex).with(routingKey));
         }
@@ -105,6 +136,8 @@ public class MqServiceClient {
             container.setExposeListenerChannel(true);
             //设置消息监听
             container.setMessageListener(new MqChannelService(entry.getKey(),rabbitTemplate,maxRetryCount,entry.getValue()));
+            //启动容器
+            container.start();
         }
     }
 
@@ -119,6 +152,36 @@ public class MqServiceClient {
         param.put(X_DEAD_LETTER_ROUTING_KEY, DLQ_NAME);//设置死信routingKey
         param.put(X_MAX_PRIORITY_HEADER, DEFAULT_MAX_PRIORITY);
         return new Queue(queue,true, false, false, param);
+    }
+
+    /**
+     * 创建队列
+     * @param queue
+     * @return
+     */
+    private Queue createQueue(String queue,String exchange,String routingKey,Long ttl) {
+        Map<String, Object> param = new HashMap<String, Object>();
+        param.put(X_DEAD_LETTER_EXCHANGE, exchange+DLQ_DELAY_SUFFIX);//设置死信交换机
+        param.put(X_DEAD_LETTER_ROUTING_KEY, routingKey+DLQ_DELAY_SUFFIX);//设置死信routingKey
+        param.put(X_MAX_PRIORITY_HEADER, DEFAULT_MAX_PRIORITY);
+        if(Objects.isNull(ttl)){
+            ttl=6000L;
+        }
+        param.put(X_MESSAGE_TTL_HEADER,ttl);
+        return new Queue(queue,true, false, false, param);
+    }
+
+    /**
+     * 创建死信队列
+     */
+    private void createDelayQueue(String queue,String exchange,String routingKey){
+        final DirectExchange delayExchange = new DirectExchange(exchange+DLQ_DELAY_SUFFIX);
+        final Queue delayQueue = new Queue(queue+DLQ_DELAY_SUFFIX);
+        final Binding binding = BindingBuilder.bind(delayQueue).to(delayExchange).with(routingKey+DLQ_DELAY_SUFFIX);
+        rabbitAdmin.declareExchange(delayExchange);
+        rabbitAdmin.declareQueue(delayQueue);
+        rabbitAdmin.declareBinding(binding);
+        log.info(binding.toString());
     }
 
     /**

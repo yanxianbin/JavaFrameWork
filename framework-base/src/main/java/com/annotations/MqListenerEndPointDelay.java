@@ -1,18 +1,19 @@
 package com.annotations;
 
-import org.springframework.stereotype.Component;
-
 import java.lang.annotation.*;
 
 /**
- * 监听队列
+ * @Classname MqLisetenerEndPointDelay
+ * @Description 延时队列监听注解
+ * @Date 2019/12/31 12:10
+ * @Created by 125937
  */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
-@Component
-@Inherited
-public @interface MqListenerEndPoint {
+@MqListenerEndPoint
+public @interface MqListenerEndPointDelay {
+
     /**
      * 队列名称
      * @return

@@ -36,15 +36,43 @@ public class CommonUtils {
      * @return
      */
     public static Long sendMqMessage(String routingKey, String exchange, String queueName, Object message) {
+        MessageMode messageMode = getMessageMode(routingKey, exchange, queueName, message);
+        getMqServiceClient().sendMqMessage(routingKey, exchange, queueName, messageMode);
+        return messageMode.getMessageId();
+    }
+
+    /**
+     * 发送消息到队列中-延时队列
+     *
+     * @param routingKey
+     * @param exchange
+     * @param queueName
+     * @param message
+     * @return
+     */
+    public static Long sendMqMessage(String routingKey, String exchange, String queueName, Object message,Long ttl) {
+        MessageMode messageMode = getMessageMode(routingKey, exchange, queueName, message);
+        getMqServiceClient().sendMqMessage(routingKey, exchange, queueName, messageMode,ttl);
+        return messageMode.getMessageId();
+    }
+
+    /**
+     * 构建消息体
+     * @param routingKey
+     * @param exchange
+     * @param queueName
+     * @param message
+     * @return
+     */
+    private static MessageMode getMessageMode(String routingKey, String exchange, String queueName, Object message) {
         MqPrincipal orginal = new MqPrincipal();
         orginal.setExchange(exchange);
         orginal.setRoutingKey(routingKey);
         orginal.setQueueName(queueName);
         MessageMode messageMode = new MessageMode();
         messageMode.setPrincipal(orginal);
-        messageMode.setMsg(message);
-        getMqServiceClient().sendMqMessage(routingKey, exchange, queueName, messageMode);
-        return messageMode.getMessageId();
+        messageMode.setMsg(JsonUtils.deSerializable(message));
+        return messageMode;
     }
 
     private static MqServiceClient getMqServiceClient() {

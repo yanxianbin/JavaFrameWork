@@ -48,8 +48,7 @@ public class MqChannelService implements ChannelAwareMessageListener {
     @Override
     public void onMessage(Message message, Channel channel) throws Exception {
         try {
-            String msg = new String(message.getBody(), "utf-8");
-            MessageMode messageMode = JsonUtils.serializable(msg, MessageMode.class);
+            MessageMode messageMode = JsonUtils.serializable(message.getBody(), MessageMode.class);
             if (Objects.isNull(messageMode)) {
                 channel.basicReject(message.getMessageProperties().getDeliveryTag(), false);
             }
@@ -70,6 +69,9 @@ public class MqChannelService implements ChannelAwareMessageListener {
                   //手动设置应答
                   channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);
                   log.info("MqChannelService onMessage queueName:{} messageId:{} retryCount:{}",queueName,message.getMessageProperties().getDeliveryTag(),retryCount);
+                }else{
+                    log.error("MqChannelService onMessage retryCount>{} queueName:{} messageId:{} error",retryCount,queueName,message.getMessageProperties().getDeliveryTag());
+                    channel.basicAck(message.getMessageProperties().getDeliveryTag(), true);
                 }
             } else {
                 channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);

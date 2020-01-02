@@ -20,7 +20,7 @@ public class MessageMode implements Serializable {
     /**
      * 消息体
      */
-    private Object msg;
+    private String msg;
 
     /**
      * 消息ID
@@ -55,11 +55,11 @@ public class MessageMode implements Serializable {
         this.principal = principal;
     }
 
-    public Object getMsg() {
+    public String getMsg() {
         return msg;
     }
 
-    public void setMsg(Object msg) {
+    public void setMsg(String msg) {
         this.msg = msg;
     }
 

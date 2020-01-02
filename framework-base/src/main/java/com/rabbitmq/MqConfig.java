@@ -1,21 +1,15 @@
 package com.rabbitmq;
 
-import com.rabbitmq.client.Channel;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.amqp.core.AcknowledgeMode;
-import org.springframework.amqp.core.Message;
 import org.springframework.amqp.rabbit.connection.CachingConnectionFactory;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitAdmin;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
-import org.springframework.amqp.rabbit.listener.SimpleMessageListenerContainer;
-import org.springframework.amqp.rabbit.listener.api.ChannelAwareMessageListener;
-import org.springframework.amqp.support.ConsumerTagStrategy;
+import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
+import org.springframework.amqp.support.converter.MessageConverter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
-import java.util.UUID;
 
 /**
  * @Classname MqConfig
@@ -50,6 +44,8 @@ public class MqConfig {
         connectionFactory.setVirtualHost(virtualHost);
         connectionFactory.setUsername(userName);
         connectionFactory.setPassword(passWord);
+        connectionFactory.setPublisherConfirms(true);
+        connectionFactory.setPublisherReturns(true);
         return connectionFactory;
     }
 
@@ -59,12 +55,23 @@ public class MqConfig {
         log.info("RabbitAdmin启动了。。。");
         //设置启动spring容器时自动加载这个类(这个参数现在默认已经是true，可以不用设置)
         rabbitAdmin.setAutoStartup(true);
+        rabbitAdmin.setIgnoreDeclarationExceptions(true);
         return rabbitAdmin;
+    }
+
+    @Bean
+    public MessageConverter jackson2JsonMessageConverter() {
+        Jackson2JsonMessageConverter converter = new Jackson2JsonMessageConverter();
+        return converter;
     }
 
     @Bean
     public RabbitTemplate rabbitTemplate(ConnectionFactory connectionFactory) {
         RabbitTemplate rabbitTemplate = new RabbitTemplate(connectionFactory);
+        rabbitTemplate.setMandatory(true);
+        rabbitTemplate.setMessageConverter(jackson2JsonMessageConverter());
+        rabbitTemplate.setConfirmCallback(new ConfirmCallBackListener());
+        rabbitTemplate.setReturnCallback(new ReturnCallBackListener());
         return rabbitTemplate;
     }
 }

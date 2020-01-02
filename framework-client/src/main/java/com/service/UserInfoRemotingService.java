@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/user/")
-public interface UserInfoService {
+public interface UserInfoRemotingService {
 
     @RequestMapping("/isAdminUser")
     Boolean isAdminUser(@RequestParam("userName")String userName);

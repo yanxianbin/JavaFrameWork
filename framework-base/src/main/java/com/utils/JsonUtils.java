@@ -34,6 +34,16 @@ public class JsonUtils {
         }
     }
 
+    public static <T> T serializable(byte[] src, Class<T> tClass) {
+        try {
+            T value = getObjectMapper().readValue(src, tClass);
+            return value;
+        } catch (Exception ex) {
+            log.error("JsonUtils serializable error", ex);
+            return null;
+        }
+    }
+
     private static ObjectMapper getObjectMapper(){
         if(objectMapper==null){
             objectMapper=new ObjectMapper();

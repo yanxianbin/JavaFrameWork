@@ -53,6 +53,11 @@ spring:
       simple:
         concurrency: 1
         max-concurrency: 10
+  data:
+    mongodb:
+      uri: mongodb://test:123456@127.0.0.1:27017/?readPreference=secondaryPreferred
+      database: testDB
+      authentication-database: admin
 
 
 

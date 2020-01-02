@@ -12,4 +12,9 @@ public interface Constants {
     String USER_INFO_CHANGE_EXCHANGE="user-info-change-exchange";
     String USER_INFO_CHANGE_ROUTING_KEY="user-info-change-routing-key";
     String USER_INFO_CHANGE_QUEUE="user-info-change-queue";
+
+    /**用户信息变更*/
+    String USER_AGE_CHANGE_EXCHANGE="user-age-change-exchange";
+    String USER_AGE_CHANGE_ROUTING_KEY="user-age-change-routing-key";
+    String USER_AGE_CHANGE_QUEUE="user-age-change-queue";
 }
