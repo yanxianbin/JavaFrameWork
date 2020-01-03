@@ -15,6 +15,6 @@ import org.springframework.amqp.rabbit.core.RabbitTemplate;
 public class ConfirmCallBackListener implements RabbitTemplate.ConfirmCallback {
     @Override
     public void confirm(CorrelationData correlationData, boolean b, String s) {
-        log.info("ConfirmCallBackListener confirm correlationData:{} b:{} s:{} ", JsonUtils.deSerializable(correlationData),b,s);
+        //log.info("ConfirmCallBackListener confirm correlationData:{} b:{} s:{} ", JsonUtils.deSerializable(correlationData),b,s);
     }
 }

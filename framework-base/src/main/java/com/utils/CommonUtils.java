@@ -1,16 +1,26 @@
 package com.utils;
 
+import com.constants.MqConsumerResult;
+import com.google.common.base.Throwables;
+import com.messageframe.mode.ReceiveMode;
+import com.messageframe.receiveclient.MessageConsumerService;
 import com.rabbitmq.MessageMode;
 import com.rabbitmq.MqPrincipal;
 import com.rabbitmq.MqServiceClient;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.util.StringUtils;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Objects;
 
+@Slf4j
 public class CommonUtils {
 
     private static MqServiceClient mqServiceClient;
+
+    private static MessageConsumerService messageConsumerService;
 
     /**
      * 获取当前时间格式化输出
@@ -56,6 +66,42 @@ public class CommonUtils {
         return messageMode.getMessageId();
     }
 
+    public static MqConsumerResult receiveCommonMessage(MessageMode messageMode){
+        if (StringUtils.isEmpty(messageMode.getMsg())) {
+            return MqConsumerResult.SUCCESS;
+        }
+        log.info("receiveCommonMessage queueName:{} message:{}", messageMode.getPrincipal().getQueueName(), messageMode.getMsg());
+        ReceiveMode receiveMode = JsonUtils.serializable(messageMode.getMsg(), ReceiveMode.class);
+        boolean isSuccess = getMessageConsumerService().consumer(receiveMode);
+        MqConsumerResult result = MqConsumerResult.FAILED;
+        if (isSuccess) {
+            result = MqConsumerResult.SUCCESS;
+        }
+        return result;
+    }
+
+    public static Long ifNull(Long value){
+        return Objects.isNull(value) ? 0 : value;
+    }
+
+    public static Integer ifNull(Integer value){
+        return Objects.isNull(value) ? 0 : value;
+    }
+
+    /**
+     * 获取异常信息，报空指针时则获取堆栈信息
+     *
+     * @param ex
+     * @return
+     */
+    public static String getExceptionMsg(Exception ex) {
+        String errorMsg = ex.getMessage();
+        if (ex instanceof NullPointerException) {
+            errorMsg = Throwables.getStackTraceAsString(ex);
+        }
+        return errorMsg;
+    }
+
     /**
      * 构建消息体
      * @param routingKey
@@ -80,5 +126,12 @@ public class CommonUtils {
             mqServiceClient = SpringUtils.getBean(MqServiceClient.class);
         }
         return mqServiceClient;
+    }
+
+    private static MessageConsumerService getMessageConsumerService() {
+        if (messageConsumerService == null) {
+            messageConsumerService = SpringUtils.getBean(MessageConsumerService.class);
+        }
+        return messageConsumerService;
     }
 }

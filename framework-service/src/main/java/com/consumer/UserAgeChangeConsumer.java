@@ -4,7 +4,7 @@ import com.annotations.MqListenerEndPointDelay;
 import com.constants.Constants;
 import com.constants.MqConsumerResult;
 import com.rabbitmq.MessageMode;
-import com.sevice.MessageConsumer;
+import com.service.MessageConsumer;
 import com.utils.JsonUtils;
 import lombok.extern.slf4j.Slf4j;
 

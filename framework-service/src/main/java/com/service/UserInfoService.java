@@ -17,10 +17,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class UserInfoService  extends MongoGenericService<UserInfo> {
 
-    @Autowired
-    private UserInfoMongoDao genDao;
-
-    public UserInfoService(@Autowired MongodbBaseDao<UserInfo> genDao) {
+    public UserInfoService(@Autowired UserInfoMongoDao genDao) {
         super(genDao);
     }
 

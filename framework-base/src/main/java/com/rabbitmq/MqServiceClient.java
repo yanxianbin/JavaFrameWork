@@ -1,6 +1,6 @@
 package com.rabbitmq;
 
-import com.sevice.MessageConsumer;
+import com.service.MessageConsumer;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.core.*;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;

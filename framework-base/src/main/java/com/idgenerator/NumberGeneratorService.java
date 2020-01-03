@@ -104,7 +104,6 @@ public class NumberGeneratorService {
         mode.setSequenceLength(configAnnotation.sequenceLength());
         mode.setNumberFormat(configAnnotation.numberFormat());
         mode.setStep(configAnnotation.step());
-
         return mode;
     }
 }

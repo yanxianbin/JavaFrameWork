@@ -4,8 +4,9 @@ import com.annotations.MqListenerEndPoint;
 import com.annotations.MqListenerEndPointDelay;
 import com.annotations.SerialNumberAnnotation;
 import com.idgenerator.NumberGeneratorService;
+import com.messageframe.receiveclient.ReceiveClient;
 import com.rabbitmq.MqServiceClient;
-import com.sevice.MessageConsumer;
+import com.service.MessageConsumer;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +16,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
 
 import java.lang.annotation.Annotation;
 import java.util.Arrays;
@@ -31,6 +33,11 @@ public class InitializationMqListener implements ApplicationRunner, ApplicationC
      * 线程安全的Map
      */
     private static final Map<String,MessageConsumer> consumerMap=new ConcurrentHashMap<>();
+
+    /**
+     * 消息框架消费者
+     */
+    private static final Map<String, ReceiveClient> messageConsumerMap=new ConcurrentHashMap<>();
 
     private final Map<String,Object> numberConfigMap=new ConcurrentHashMap<>();
 
@@ -70,6 +77,26 @@ public class InitializationMqListener implements ApplicationRunner, ApplicationC
             consumerMap.put(queueName,consumer);
         }
         initNumberGenConfig(applicationContext);
+        initMsgConsumer(applicationContext);
+    }
+
+    private void initMsgConsumer(ApplicationContext applicationContext){
+        String[] clients=applicationContext.getBeanNamesForType(ReceiveClient.class);
+        if(clients!=null && clients.length>0) {
+            for (String beanName : clients) {
+                ReceiveClient consumer=(ReceiveClient) applicationContext.getBean(beanName);
+                messageConsumerMap.put(consumer.businessType(),consumer);
+            }
+        }
+    }
+
+    /**
+     * 获取消息框架消费者
+     * @param businessType
+     * @return
+     */
+    public static ReceiveClient getMessageClient(String businessType){
+        return messageConsumerMap.get(businessType);
     }
 
     /**

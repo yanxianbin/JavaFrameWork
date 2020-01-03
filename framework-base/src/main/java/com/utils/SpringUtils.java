@@ -3,7 +3,9 @@ package com.utils;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
+import org.springframework.context.EmbeddedValueResolverAware;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringValueResolver;
 
 import java.util.Map;
 
@@ -12,9 +14,11 @@ import java.util.Map;
  */
 @Component
 @SuppressWarnings("unchecked")
-public class SpringUtils implements ApplicationContextAware {
+public class SpringUtils implements ApplicationContextAware, EmbeddedValueResolverAware {
 
     private static ApplicationContext applicationContext;
+
+    private static StringValueResolver stringValueResolver;
 
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
         SpringUtils.applicationContext = applicationContext;
@@ -34,5 +38,25 @@ public class SpringUtils implements ApplicationContextAware {
 
     public static <T> Map<String, T> getBeansOfType(Class<T> baseType){
         return applicationContext.getBeansOfType(baseType);
+    }
+
+    @Override
+    public void setEmbeddedValueResolver(StringValueResolver stringValueResolver) {
+        this.stringValueResolver=stringValueResolver;
+    }
+
+    /**
+     * 动态获取配置文件中的值
+     * @param name
+     * @return
+     */
+    public static String getPropertiesValue(String name) {
+        try {
+            name = "${" + name + "}";
+            return stringValueResolver.resolveStringValue(name);
+        } catch (Exception e) {
+            // 获取失败则返回null
+            return null;
+        }
     }
 }

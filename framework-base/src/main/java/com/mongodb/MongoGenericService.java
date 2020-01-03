@@ -1,12 +1,18 @@
 package com.mongodb;
 
 import com.Entity.BaseEntity;
+import com.mongodb.mode.PageInfo;
+import com.constants.ApplicationException;
+import com.constants.ResponseCode;
 import com.mongodb.client.result.DeleteResult;
+import com.mongodb.lang.Nullable;
 import com.utils.IdGeneratorClient;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.query.Query;
-import org.springframework.stereotype.Component;
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -16,7 +22,7 @@ import java.util.Objects;
  * @Date 2020/1/2 17:55
  * @Created by 125937
  */
-@Component
+@Slf4j
 public class MongoGenericService<T extends BaseEntity> {
 
     protected MongodbBaseDao<T> genDao;
@@ -42,6 +48,47 @@ public class MongoGenericService<T extends BaseEntity> {
             t.setUpdateTime(new Timestamp(System.currentTimeMillis()));
         }
         genDao.insert(t);
+    }
+
+    public List<T> selectAll(T t){
+        try {
+            return genDao.selectAll(t);
+        }catch (Exception ex){
+            log.error("MongoGenericService selectAll error",ex);
+            throw new ApplicationException(ResponseCode.SELECT_DATA_ERROR);
+        }
+    }
+
+    /**
+     * 分页查询，默认按照_id排序
+     * @param entity
+     * @param pageIndex
+     * @param pageSize
+     * @param orders
+     * @return
+     */
+    public PageInfo<T> searchPage(T entity,int pageIndex,int pageSize,@Nullable String... orders) {
+        try {
+            PageInfo<T> pageInfo=new PageInfo<>();
+            pageInfo.setQueryCondition(entity);
+            pageInfo.setPageIndex(pageIndex);
+            pageInfo.setPageSize(pageSize);
+            List<Sort.Order> orderList=new ArrayList<>();
+            if(orders!=null && orders.length>0){
+                for(String order : orders){
+                    Sort.Order ord=new Sort.Order(Sort.Direction.ASC,order);
+                    orderList.add(ord);
+                }
+            }else{
+                Sort.Order ord=new Sort.Order(Sort.Direction.ASC,"_id");
+                orderList.add(ord);
+            }
+            pageInfo.setOrderCondition(orderList);
+            return genDao.searchPage(pageInfo);
+        } catch (Exception ex) {
+            log.error("MongoGenericService searchPage error", ex);
+            throw new ApplicationException(ResponseCode.SELECT_DATA_ERROR);
+        }
     }
 
     public DeleteResult delete(T t) {
