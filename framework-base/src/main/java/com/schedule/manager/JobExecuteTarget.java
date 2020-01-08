@@ -17,6 +17,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
+import javax.swing.*;
 import java.sql.Timestamp;
 
 /**
@@ -40,7 +41,7 @@ public class JobExecuteTarget implements Job {
         scheduleLog.setId(IdGeneratorClient.getId());
         scheduleLog.setExecuteState("失败");
         try {
-            RestTemplate restTemplate = new RestTemplate();
+            RestTemplate restTemplate = SpringUtils.getBean(RestTemplate.class);
             ScheduleRequest request = new ScheduleRequest();
             request.setScheduleId(scheduleLog.getId());
             request.setTaskInfo(scheduleInfo);

@@ -99,6 +99,6 @@ rsa:
 eureka:
   client:
     service-url:
-      defaultZone: http://127.0.0.1:10991/
+      defaultZone: http://127.0.0.1:10993/eureka
     registry-fetch-interval-seconds: 30
 
