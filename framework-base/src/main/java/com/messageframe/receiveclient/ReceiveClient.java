@@ -1,6 +1,9 @@
 package com.messageframe.receiveclient;
 
 import com.constants.MessageConsumerType;
+import com.messageframe.mode.MsgConsumerResult;
+
+import java.util.LinkedHashMap;
 
 /**
  * @Classname ReceiveClient
@@ -21,11 +24,11 @@ public interface ReceiveClient {
      * @param message
      * @return
      */
-    boolean execute(String message);
+    MsgConsumerResult execute(LinkedHashMap<Long,String> message);
 
     /**
      * 消费方式
      * @return
      */
-    MessageConsumerType consumerType();
+    default MessageConsumerType consumerType() {return MessageConsumerType.SINGLE;}
 }

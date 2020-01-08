@@ -1,6 +1,6 @@
 package com.rabbitmq;
 
-import com.service.MessageConsumer;
+import com.constants.Constants;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.core.*;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
@@ -44,7 +44,7 @@ public class MqServiceClient {
     //延时队列-过期时间
     private static final String X_MESSAGE_TTL_HEADER = "x-message-ttl";
     //延时队列后缀
-    private static final String DLQ_DELAY_SUFFIX=".DELAY";
+    private static final String DLQ_DELAY_SUFFIX= Constants.DLQ_DELAY_SUFFIX;
 
 
     @Autowired

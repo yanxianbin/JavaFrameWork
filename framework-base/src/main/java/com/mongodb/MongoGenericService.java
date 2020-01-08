@@ -1,12 +1,13 @@
 package com.mongodb;
 
-import com.Entity.BaseEntity;
+import com.entity.BaseEntity;
 import com.mongodb.mode.PageInfo;
 import com.constants.ApplicationException;
 import com.constants.ResponseCode;
 import com.mongodb.client.result.DeleteResult;
 import com.mongodb.lang.Nullable;
 import com.utils.IdGeneratorClient;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.query.Query;
@@ -103,11 +104,10 @@ public class MongoGenericService<T extends BaseEntity> {
         return genDao.delete(query);
     }
 
+    @SneakyThrows
     public void update(T t) {
-        if(Objects.isNull(t.getUpdateTime())){
-            t.setUpdateTime(new Timestamp(System.currentTimeMillis()));
-        }
-        if(Objects.isNull(t.getUpdateBy())){
+        t.setUpdateTime(new Timestamp(System.currentTimeMillis()));
+        if (Objects.isNull(t.getUpdateBy())) {
             t.setUpdateBy("System");
         }
         genDao.update(t);

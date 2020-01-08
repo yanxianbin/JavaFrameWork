@@ -2,6 +2,8 @@ server:
   port: 9088
 
 spring:
+  application:
+    name: framework-client
   datasource:
     type: org.springframework.jdbc.datasource.SimpleDriverDataSource
     url: jdbc:mysql://127.0.0.1:3306/java_framework
@@ -41,6 +43,32 @@ spring:
     #在空闲时检查有效性, 默认false
     testWhileIdle: true
     database: 9
+  redisson:
+    #Redisson配置-单节点配置
+    singleServerConfig:
+      address: "redis://127.0.0.1:6379"
+      clientName: client1
+      database: 9 #选择使用哪个数据库0~15
+      idleConnectionTimeout: 10000
+      pingTimeout: 1000
+      connectTimeout: 10000
+      timeout: 3000
+      retryAttempts: 3
+      retryInterval: 1500
+      reconnectionTimeout: 3000
+      failedAttempts: 3
+      subscriptionsPerConnection: 5
+      subscriptionConnectionMinimumIdleSize: 1
+      subscriptionConnectionPoolSize: 50
+      connectionMinimumIdleSize: 32
+      connectionPoolSize: 64
+      dnsMonitoringInterval: 5000
+      #dnsMonitoring: false
+    threads: 0
+    nettyThreads: 0
+    codec:
+      class: "org.redisson.codec.JsonJacksonCodec"
+    transportMode: "NIO"
 
   rabbitmq:
     addresses: 127.0.0.1
@@ -53,6 +81,7 @@ spring:
       simple:
         concurrency: 1
         max-concurrency: 10
+
   data:
     mongodb:
       uri: mongodb://test:123456@127.0.0.1:27017/?readPreference=secondaryPreferred
@@ -63,5 +92,13 @@ spring:
   message:
     queuesize: 5
 
+rsa:
+  privatekey: MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQCdXeM0qTg31t+iT48uKJTTVRQRcyjGX7yBnbqnaN7vek7kUZVIdkOeqqoQIun/t9fRNA969ze9OClZr+cb8wCBylxIMFkFjwxEaUB4boxAhFidBquMNHV382ch+JMNK9X0mdVYKzG/7HLJVw6unCh5T+UjqM+18W3YPBh1lhIhAmHo0g3nnEfhXt5uPCd9ORl+hDvM2fzGmknvrNBRK5HGNes2yGfPloIH9dNfUu9CxND1zWoqo+KDUqSISwymxFraajcvbpAUIbsFwpzHi1+2A4d7ubxY5F4/cj6sGKrW2spnSFmF5mohHPpCofYmPIIvuuMpboT7orPlSGYTdbOvAgMBAAECggEAQyira3EAdgw0uq9beqaFBT/c5amQ8EAxUdu/qex+oBNBkf0jSZ53M0LAe0x7MtABwd2G8cKJvi42r3j7l5j4UWvMQF6pz06CPLvycLM1Fd+ldbZABgDpVPzCueO81jUsBUyVmSAuBithvX1y3Z/1QfiP4M0NgCd96neTNLOMHxuZ/MAPRP9TC+HIe/GnSpAHKkkMdNky9kW1LXisF+36pFlXJNRL/IrrZIRnM50fQIXM1aW+Qvv0F0Z9oNM3bSRRpA++LUMOfXgvpDKMUchqp4Oqf+8PC0Sn1ixT2VfreMk3s+y6JFJb0Hm0ZEA4VZWs5jXMDclSJtMKVHA0JLj4wQKBgQDeHAQuhqJNaSm4eE1wwQCxTT56/G3LgohzHM99XnqeZ374fgWtxTMcshGXiNmhOCkN/3+GkBOc7FTS2R7kfThct8PMXR10mAV73V+BLtre4O4C1oj6NvKWcj01r+aVvXeko/1W0xwHjVQdWbssxIlDq03NtxOQQVnLX6TcdjCWTwKBgQC1YOiGoYI/asp3gdWtoEOhjShKxNs8/udPa/7WTA0bXZRv1RgijQeekK7df20Kg5CSxtTg0uFEFi0WBIHaohgUy2/V92cRUfa6QxD92KAiOkkmaOUEfSEZuPDhuMk1ikFzbLhXp/CPmjSMkLKb916qiGRi0hxG39snQurz+QcUoQKBgCXUK7oo4BfDI4Hxq27a0F1iRJP5zlFtCARjEcvOfZ/hDLUR8bGo9o2annhqrHZS9FsX+wZWH6EId2H57NMJqMHR4p059rxW8Agqqgt8iXaQZLlDBM1o8mRBTL+KGAHE5U27SHizOADpRzxAfiqfxqkp0fSJi+Fz3/FNduy9jITtAoGAY8g6Y8Z6dxTy6af9u5UNX9TeM7P0wKui6SiKe64/D6z9ukBLFMbtSChkauptPHmAkZ7dAgpBb0mb6B72qSa/hMEed2Gxy++BgprewCfqgKn8ECtown1sNlBuBF+6IcA7nZpUF7UGPJojCqmX+QGvjLWYNF1OvRbt472GsE1xvcECgYEA3UurIXhPfsYSoUN4AnLRWAIucmRLNOm3mFXHjIDTMmVurp4jlNJ/aJSWwFLkFJAzZfF+xgcxDDTcb1kyQqNNZYGpgxruWUwkHJFFaUMKYpM6BkV5Hbjo4krAmR7cJN169T3V4sdwYdziJmG/34izXLai6CWZ2sGILpOuLogsoTQ=
+  publickey: MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAnV3jNKk4N9bfok+PLiiU01UUEXMoxl+8gZ26p2je73pO5FGVSHZDnqqqECLp/7fX0TQPevc3vTgpWa/nG/MAgcpcSDBZBY8MRGlAeG6MQIRYnQarjDR1d/NnIfiTDSvV9JnVWCsxv+xyyVcOrpwoeU/lI6jPtfFt2DwYdZYSIQJh6NIN55xH4V7ebjwnfTkZfoQ7zNn8xppJ76zQUSuRxjXrNshnz5aCB/XTX1LvQsTQ9c1qKqPig1KkiEsMpsRa2mo3L26QFCG7BcKcx4tftgOHe7m8WOReP3I+rBiq1trKZ0hZheZqIRz6QqH2JjyCL7rjKW6E+6Kz5UhmE3WzrwIDAQAB
 
+eureka:
+  client:
+    service-url:
+      defaultZone: http://127.0.0.1:10991/
+    registry-fetch-interval-seconds: 30
 

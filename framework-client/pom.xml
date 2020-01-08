@@ -10,4 +10,12 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>framework-client</artifactId>
+
+    <dependencies>
+        <dependency>
+            <groupId>javaframework</groupId>
+            <artifactId>framework-api</artifactId>
+            <version>1.0.1-SNAPSHOT</version>
+        </dependency>
+    </dependencies>
 </project>

@@ -1,6 +1,6 @@
 package com.mongodb.mode;
 
-import com.Entity.BaseEntity;
+import com.entity.BaseEntity;
 import org.springframework.data.domain.Sort;
 
 import java.io.Serializable;

@@ -2,21 +2,25 @@ package com.messageframe.receiveclient;
 
 import com.constants.MessageConsumerType;
 import com.constants.MessageStateEnum;
+import com.messageframe.mode.MsgConsumerResult;
 import com.messageframe.mode.ReceiveMode;
 import com.messageframe.service.ReceiveMessageService;
 import com.startup.InitializationMqListener;
 import com.utils.CommonUtils;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
 import java.sql.Timestamp;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 /**
  * @Classname MessageConsumerService
@@ -25,6 +29,7 @@ import java.util.stream.Collectors;
  * @Created by 125937
  */
 @Service
+@Slf4j
 public class MessageConsumerService {
 
     @Autowired
@@ -35,8 +40,8 @@ public class MessageConsumerService {
      * @param message
      * @return
      */
-    public boolean consumer(ReceiveMode message){
-        boolean isSuccess = false;
+    public boolean consumer(ReceiveMode message) {
+        MsgConsumerResult result = new MsgConsumerResult();
         ReceiveMode entity = receiveService.findById(message.getId());
         if (Objects.nonNull(entity)) {
             long startTime = System.currentTimeMillis();
@@ -44,49 +49,80 @@ public class MessageConsumerService {
             ReceiveClient client = InitializationMqListener.getMessageClient(message.getBusinessType());
             if (Objects.isNull(client)) {
                 entity.setFailReason(String.format("业务类型：%s 客户端未注册", message.getBusinessType()));
+                receiveService.update(entity);
             } else {
                 try {
                     //调用对应的消费者
-                    isSuccess = executeMessage(message,client);
+                    result = executeMessage(message, client);
+                    updateOtherMessage(result, startTime);
                 } catch (Exception ex) {
                     entity.setFailReason(CommonUtils.getExceptionMsg(ex));
+                    receiveService.update(entity);
                 }
             }
-            entity.setExecuteState(isSuccess ? MessageStateEnum.SUCCESS.getCode() : MessageStateEnum.FAILED.getCode());
-            entity.setExeEndTime(new Timestamp(System.currentTimeMillis()));
-            entity.setExecuteCount(CommonUtils.ifNull(entity.getExecuteCount()) + 1);
-            entity.setExecuteTimes(System.currentTimeMillis() - startTime);
-            receiveService.update(entity);
-      }
-      return isSuccess;
-    }
-
-    private void updateMessageState(ReceiveMode message,ReceiveClient client){
-        if(client.businessType().equals(MessageConsumerType.LAST)){
-
         }
+        return result.getExecuteState().equals(MessageStateEnum.SUCCESS);
     }
+
 
     /**
      * 调用消费者
+     *
      * @param message
      * @param client
      * @return
      */
-    private boolean executeMessage(ReceiveMode message,ReceiveClient client){
-        Boolean bl=false;
-        if(client.businessType().equals(MessageConsumerType.LAST)){
-           String lastMessage= getLastMessage(message.getBusinessNumber(),message.getBusinessType());
-           bl=client.execute(lastMessage);
-        }else if(client.businessType().equals(MessageConsumerType.LIST)){
-            List<String> messageList=sortList(message.getBusinessNumber(),message.getBusinessType());
-            for(String sortMessage : messageList){
-                bl=client.execute(sortMessage);
+    private MsgConsumerResult executeMessage(ReceiveMode message, ReceiveClient client) {
+        MsgConsumerResult result =null;
+        if (client.businessType().equals(MessageConsumerType.LAST)) {
+            ReceiveMode lastMessage = getLastMessage(message.getBusinessNumber(), message.getBusinessType());
+            LinkedHashMap<Long, String> linkedMap = new LinkedHashMap<>();
+            linkedMap.put(lastMessage.getId(), lastMessage.getMessage());
+            result = client.execute(linkedMap);
+        } else if (client.businessType().equals(MessageConsumerType.SORT_LIST)) {
+            List<ReceiveMode> messageList = sortList(message.getBusinessNumber(), message.getBusinessType(), null);
+            if (!CollectionUtils.isEmpty(messageList)) {
+                LinkedHashMap<Long, String> linkedHashMap = new LinkedHashMap<>();
+                messageList.forEach(x -> linkedHashMap.put(x.getId(), x.getMessage()));
+                result = client.execute(linkedHashMap);
             }
-        }else{
-            client.execute(message.getMessage());
+        } else {
+            LinkedHashMap<Long, String> linkedMap = new LinkedHashMap<>();
+            linkedMap.put(message.getId(), message.getMessage());
+            result=client.execute(linkedMap);
         }
-        return bl;
+        return result;
+    }
+
+
+    /**
+     * 更新消息
+     * @param result
+     */
+    private void updateOtherMessage(MsgConsumerResult result,long startTime) {
+        if (!CollectionUtils.isEmpty(result.getSuccessData())) {
+            for (Long id : result.getSuccessData()) {
+                ReceiveMode entity = receiveService.findById(id);
+                entity.setExecuteState(MessageStateEnum.SUCCESS.getCode());
+                entity.setExeStartTime(new Timestamp(startTime));
+                entity.setExeEndTime(new Timestamp(System.currentTimeMillis()));
+                entity.setExecuteCount(CommonUtils.ifNull(entity.getExecuteCount()) + 1);
+                entity.setExecuteTimes(System.currentTimeMillis() - startTime);
+                receiveService.update(entity);
+            }
+        }
+        if (!result.getErrorData().isEmpty()) {
+            for (Map.Entry<Long, String> error : result.getErrorData().entrySet()) {
+                ReceiveMode entity = receiveService.findById(error.getKey());
+                entity.setExecuteState(MessageStateEnum.FAILED.getCode());
+                entity.setExeStartTime(new Timestamp(startTime));
+                entity.setExeEndTime(new Timestamp(System.currentTimeMillis()));
+                entity.setExecuteCount(CommonUtils.ifNull(entity.getExecuteCount()) + 1);
+                entity.setExecuteTimes(System.currentTimeMillis() - startTime);
+                entity.setFailReason(error.getValue());
+                receiveService.update(entity);
+            }
+        }
     }
 
     /**
@@ -95,13 +131,16 @@ public class MessageConsumerService {
      * @param businessType
      * @return
      */
-    private List<String> sortList(String businessNumber,String businessType){
+    private List<ReceiveMode> sortList(String businessNumber,String businessType,String state){
         Criteria criteria=Criteria.where("businessNumber").is(businessNumber).and("businessType").is(businessType);
+        if(!StringUtils.isEmpty(state)){
+            criteria=criteria.and("executeState").is(state);
+        }
         Query query=new Query(criteria);
         query.with(Sort.by(new Sort.Order(Sort.Direction.ASC,"createTime")));
         List<ReceiveMode> receiveModeList= receiveService.find(query);
         if(CollectionUtils.isEmpty(receiveModeList)){
-            return receiveModeList.stream().map(x->x.getMessage()).collect(Collectors.toList());
+            return receiveModeList;
         }
         return null;
     }
@@ -112,14 +151,14 @@ public class MessageConsumerService {
      * @param businessType
      * @return
      */
-    private String getLastMessage(String businessNumber,String businessType){
+    private ReceiveMode getLastMessage(String businessNumber,String businessType){
         Criteria criteria=Criteria.where("businessNumber").is(businessNumber).and("businessType").is(businessType);
         Query query=new Query(criteria);
         query.with(Sort.by(new Sort.Order(Sort.Direction.DESC,"createTime")));
         query.limit(1);
         List<ReceiveMode> receiveModeList= receiveService.find(query);
         if(CollectionUtils.isEmpty(receiveModeList)){
-            return receiveModeList.get(0).getMessage();
+            return receiveModeList.get(0);
         }
         return null;
     }

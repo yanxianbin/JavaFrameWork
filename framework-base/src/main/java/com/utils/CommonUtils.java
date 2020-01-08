@@ -14,6 +14,8 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Objects;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 @Slf4j
 public class CommonUtils {
@@ -72,12 +74,15 @@ public class CommonUtils {
         }
         log.info("receiveCommonMessage queueName:{} message:{}", messageMode.getPrincipal().getQueueName(), messageMode.getMsg());
         ReceiveMode receiveMode = JsonUtils.serializable(messageMode.getMsg(), ReceiveMode.class);
-        boolean isSuccess = getMessageConsumerService().consumer(receiveMode);
-        MqConsumerResult result = MqConsumerResult.FAILED;
-        if (isSuccess) {
-            result = MqConsumerResult.SUCCESS;
+        try {
+            boolean isSuccess = getMessageConsumerService().consumer(receiveMode);
+            if (isSuccess) {
+                return MqConsumerResult.SUCCESS;
+            }
+        }catch (Exception ex){
+            log.error("receiveCommonMessage error:{}",getExceptionMsg(ex));
         }
-        return result;
+        return MqConsumerResult.FAILED;
     }
 
     public static Long ifNull(Long value){
@@ -100,6 +105,42 @@ public class CommonUtils {
             errorMsg = Throwables.getStackTraceAsString(ex);
         }
         return errorMsg;
+    }
+
+    /**
+     * Rsa 加密
+     * @param data
+     * @return
+     */
+    public static String encodeByRsa(String data){
+        String pubKey=SpringUtils.getPropertiesValue("rsa.publickey");
+        try {
+            return SecurityUtils.encryptByPublicKey(data, pubKey);
+        }catch (Exception ex){
+            log.error("encodeByRsa, error:{}",getExceptionMsg(ex),ex);
+        }
+        return null;
+    }
+
+    /**
+     * 消费消息通用方法
+     * @param messageMode
+     * @param consumer
+     * @return
+     */
+    public static MqConsumerResult messageConsumer(MessageMode messageMode,Function<String,MqConsumerResult> consumer){
+        MqConsumerResult mqConsumerResult=MqConsumerResult.FAILED;
+        log.info("messageConsumer queueName:{} message:{}",messageMode.getPrincipal().getQueueName(),messageMode.getMsg());
+        if(StringUtils.isEmpty(messageMode.getMsg())){
+            return MqConsumerResult.SUCCESS;
+        }
+        try{
+            mqConsumerResult=consumer.apply(messageMode.getMsg());
+            return mqConsumerResult;
+        }catch (Exception ex){
+            log.error("messageConsumer queueName:{} message:{} error:{}",messageMode.getPrincipal().getQueueName(),messageMode.getMsg(),getExceptionMsg(ex),ex);
+            return mqConsumerResult;
+        }
     }
 
     /**

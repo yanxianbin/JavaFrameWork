@@ -1,4 +1,4 @@
-package com.service;
+package com.rabbitmq;
 
 import com.constants.MqConsumerResult;
 import com.rabbitmq.MessageMode;

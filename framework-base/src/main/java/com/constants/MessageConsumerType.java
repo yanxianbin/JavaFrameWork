@@ -8,7 +8,7 @@ package com.constants;
  */
 public enum MessageConsumerType {
     SINGLE("10","单条消费"),
-    LIST("20","集合"),
+    SORT_LIST("20","按照消息顺序"),
     LAST("30","最后一条")
     ;
 

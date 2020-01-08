@@ -45,4 +45,7 @@ public interface Constants {
     String MESSAGE_FRAME_ROUTINGKEY_J="message-frame-routing-key-9";
     String MESSAGE_FRAME_EXCHANGE_J="message-frame-exchange-9";
     String MESSAGE_FRAME_QUEUE_J="message-frame-queue-9";
+
+    //延时队列后缀
+     String DLQ_DELAY_SUFFIX=".DELAY";
 }

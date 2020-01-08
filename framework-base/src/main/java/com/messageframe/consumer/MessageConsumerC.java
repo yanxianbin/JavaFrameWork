@@ -4,7 +4,7 @@ import com.annotations.MqListenerEndPoint;
 import com.constants.Constants;
 import com.constants.MqConsumerResult;
 import com.rabbitmq.MessageMode;
-import com.service.MessageConsumer;
+import com.rabbitmq.MessageConsumer;
 import com.utils.CommonUtils;
 
 /**

@@ -1,6 +1,6 @@
 package com.mongodb;
 
-import com.Entity.BaseEntity;
+import com.entity.BaseEntity;
 import com.mongodb.mode.PageInfo;
 import com.mongodb.client.result.DeleteResult;
 import lombok.extern.slf4j.Slf4j;

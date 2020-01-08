@@ -2,7 +2,6 @@ package com.rabbitmq;
 
 import com.constants.MqConsumerResult;
 import com.rabbitmq.client.Channel;
-import com.service.MessageConsumer;
 import com.utils.JsonUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.core.Message;

@@ -1,6 +1,7 @@
 package com.redis;
 
 import com.utils.SpringUtils;
+import org.redisson.api.RedissonClient;
 import org.springframework.data.redis.core.*;
 
 import java.sql.Date;
@@ -15,11 +16,20 @@ public class RedisAbstractService {
 
     private static RedisTemplate redisTemplate;
 
+    private static RedissonClient redissonClient;
+
     protected static RedisTemplate getRedisTemplate(){
         if(redisTemplate==null){
             redisTemplate=SpringUtils.getBean("redisTemplate");
         }
         return redisTemplate;
+    }
+
+    protected static RedissonClient getRedissonClient(){
+        if(redissonClient==null){
+            redissonClient=SpringUtils.getBean(RedissonClient.class);
+        }
+        return redissonClient;
     }
 
     /**

@@ -7,17 +7,20 @@ package com.constants;
  * @Created by 125937
  */
 public enum ResponseCode implements AppCode {
-     SELECT_DATA_ERROR(10001,"数据查询失败"),
-     UPDATE_DATA_ERROR(10002,"数据更新失败"),
-     DELETE_DATA_ERROR(10003,"数据删除失败"),
-     INSERT_DATA_ERROR(10004,"数据新增失败"),
-    ;
+    SELECT_DATA_ERROR(10001, "数据查询失败"),
+    UPDATE_DATA_ERROR(10002, "数据更新失败"),
+    DELETE_DATA_ERROR(10003, "数据删除失败"),
+    INSERT_DATA_ERROR(10004, "数据新增失败"),
+    UNKOWN_EXCEPTION(-1, "服务器开了个小差"),
+    SUCCESS(1, "操作成功");
     private int code;
     private String message;
-    ResponseCode(int code,String message){
-        this.code=code;
-        this.message=message;
+
+    ResponseCode(int code, String message) {
+        this.code = code;
+        this.message = message;
     }
+
     @Override
     public int getCode() {
         return this.code;
@@ -25,7 +28,7 @@ public enum ResponseCode implements AppCode {
 
     @Override
     public void setCode(int var1) {
-      this.code=var1;
+        this.code = var1;
     }
 
     @Override
@@ -35,6 +38,6 @@ public enum ResponseCode implements AppCode {
 
     @Override
     public void setMessage(String var1) {
-        this.message=var1;
+        this.message = var1;
     }
 }

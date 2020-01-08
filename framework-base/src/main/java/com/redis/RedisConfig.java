@@ -1,9 +1,17 @@
 package com.redis;
 
 import lombok.extern.slf4j.Slf4j;
+import org.redisson.Redisson;
+import org.redisson.api.RedissonClient;
+import org.redisson.config.Config;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.context.properties.ConfigurationPropertiesBinding;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.redis.cache.RedisCacheConfiguration;
 import org.springframework.data.redis.cache.RedisCacheManager;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
@@ -13,6 +21,7 @@ import org.springframework.data.redis.serializer.RedisSerializationContext;
 import org.springframework.data.redis.serializer.RedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
+import java.io.IOException;
 import java.time.Duration;
 
 /**
@@ -25,6 +34,9 @@ import java.time.Duration;
 @EnableCaching
 @Slf4j
 public class RedisConfig {
+
+    @Autowired
+    private RedissonConfig redissonConfig;
 
     //过期时间1天
     private Duration timeToLive = Duration.ofDays(1);
@@ -40,7 +52,7 @@ public class RedisConfig {
                 .cacheDefaults(config)
                 .transactionAware()
                 .build();
-        log.debug("自定义RedisCacheManager加载完成");
+        log.info("自定义RedisCacheManager加载完成");
         return redisCacheManager;
     }
 
@@ -52,8 +64,13 @@ public class RedisConfig {
         redisTemplate.setHashKeySerializer(keySerializer());
         redisTemplate.setValueSerializer(valueSerializer());
         redisTemplate.setHashValueSerializer(valueSerializer());
-        log.debug("自定义RedisTemplate加载完成");
+        log.info("自定义RedisTemplate加载完成");
         return redisTemplate;
+    }
+
+    @Bean
+    public RedissonClient redissonClient() throws IOException {
+        return Redisson.create(redissonConfig);
     }
 
     private RedisSerializer<String> keySerializer() {

@@ -3,10 +3,13 @@ package com.startup;
 import com.annotations.MqListenerEndPoint;
 import com.annotations.MqListenerEndPointDelay;
 import com.annotations.SerialNumberAnnotation;
+import com.constants.Constants;
 import com.idgenerator.NumberGeneratorService;
 import com.messageframe.receiveclient.ReceiveClient;
 import com.rabbitmq.MqServiceClient;
-import com.service.MessageConsumer;
+import com.rabbitmq.MessageConsumer;
+import io.github.resilience4j.ratelimiter.RateLimiter;
+import io.github.resilience4j.ratelimiter.RateLimiterConfig;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,9 +19,9 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
-import org.springframework.util.CollectionUtils;
 
 import java.lang.annotation.Annotation;
+import java.time.Duration;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -39,6 +42,11 @@ public class InitializationMqListener implements ApplicationRunner, ApplicationC
      */
     private static final Map<String, ReceiveClient> messageConsumerMap=new ConcurrentHashMap<>();
 
+    /**
+     * 消息框架消费者
+     */
+    private static final Map<String, RateLimiter> messageRateLimiterMap=new ConcurrentHashMap<>();
+
     private final Map<String,Object> numberConfigMap=new ConcurrentHashMap<>();
 
     @Autowired
@@ -46,9 +54,6 @@ public class InitializationMqListener implements ApplicationRunner, ApplicationC
 
     @Autowired
     private MqServiceClient mqListenerInitService;
-
-    //延时队列后缀
-    private static final String DLQ_DELAY_SUFFIX=".DELAY";
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
@@ -72,7 +77,7 @@ public class InitializationMqListener implements ApplicationRunner, ApplicationC
             }else {
                 MqListenerEndPointDelay endPointListener = (MqListenerEndPointDelay)annotation;
                 queueName = endPointListener.queueName();
-                queueName += DLQ_DELAY_SUFFIX;
+                queueName += Constants.DLQ_DELAY_SUFFIX;
             }
             consumerMap.put(queueName,consumer);
         }
@@ -86,8 +91,24 @@ public class InitializationMqListener implements ApplicationRunner, ApplicationC
             for (String beanName : clients) {
                 ReceiveClient consumer=(ReceiveClient) applicationContext.getBean(beanName);
                 messageConsumerMap.put(consumer.businessType(),consumer);
+
+                RateLimiterConfig config = RateLimiterConfig.custom()
+                        .limitForPeriod(10).timeoutDuration(Duration.ofMillis(200))
+                        .limitRefreshPeriod(Duration.ofMillis(1000)).build();
+                RateLimiter rateLimiter=RateLimiter.of(consumer.businessType(),config);
+                //以业务类型作为限流器的名称
+                messageRateLimiterMap.put(consumer.businessType(),rateLimiter);
             }
         }
+    }
+
+    /**
+     * 获取限流器配置
+     * @param businessType
+     * @return
+     */
+    public static RateLimiter getRateLimiter(String businessType){
+        return messageRateLimiterMap.get(businessType);
     }
 
     /**

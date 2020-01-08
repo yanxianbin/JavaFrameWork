@@ -1,7 +1,6 @@
 package com.messageframe.mode;
 
-import com.Entity.BaseEntity;
-import org.springframework.context.annotation.Primary;
+import com.entity.BaseEntity;
 
 import java.io.Serializable;
 import java.sql.Timestamp;
