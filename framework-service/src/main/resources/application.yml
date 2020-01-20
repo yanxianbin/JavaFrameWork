@@ -1,5 +1,7 @@
 server:
   port: 9088
+  servlet:
+    context-path: /
 
 spring:
   application:
@@ -69,7 +71,6 @@ spring:
     codec:
       class: "org.redisson.codec.JsonJacksonCodec"
     transportMode: "NIO"
-
   rabbitmq:
     addresses: 127.0.0.1
     port: 5672
@@ -81,13 +82,22 @@ spring:
       simple:
         concurrency: 1
         max-concurrency: 10
-
   data:
     mongodb:
       uri: mongodb://test:123456@127.0.0.1:27017/?readPreference=secondaryPreferred
       database: testDB
       authentication-database: admin
       auto-index-creation: true
+
+  thymeleaf:
+    cache: false
+    prefix: classpath:/pages/
+    check-template-location: false
+    suffix: .html
+    encoding: utf-8
+    mode: LEGACYHTML5
+    servlet:
+      content-type: text/html
 
   message:
     queuesize: 5
@@ -99,6 +109,6 @@ rsa:
 eureka:
   client:
     service-url:
-      defaultZone: http://127.0.0.1:10993/eureka
+      defaultZone: http://127.0.0.1:10994/eureka
     registry-fetch-interval-seconds: 30
 

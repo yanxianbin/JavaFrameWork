@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Table</title>
+    <script th:src="@{/jquery/jquery-3.4.1.min.js}"></script>
+    <link rel="stylesheet" th:href="@{/bootstrap/css/bootstrap.min.css}">
+    <script th:src="@{/bootstrap/js/bootstrap.min.js}"></script>
+    <script th:src="@{/bootstrap/table/bootstrap-table.min.js}"></script>
+    <link rel="stylesheet" th:href="@{/bootstrap/table/bootstrap-table.min.css}">
+    <script th:src="@{/bootstrap/table/locale/bootstrap-table-zh-CN.min.js}"></script>
+    <script th:src="@{/bootstrap/table/extensions/toolbar/bootstrap-table-toolbar.min.js}"></script>
+</head>
+<body>
+<div class="container-fluid">
+    <div id="toolbar"></div>
+    <div>
+        <table id="table"></table>
+    </div>
+</div>
+
+<div id="mymodal" class="mydal fade" tabindex="-1"></div>
+</body>
+
+<script>
+    var $table = $('#table');
+    $(function () {
+        initTable();
+    });
+
+    function initTable() {
+        // 先销毁再创建
+        $table.bootstrapTable('destroy').bootstrapTable({
+            url:"/schedule/pageInfo",             //请求后台的URL（*）
+            method: 'get',                      //请求方式（*）
+            toolbar: '#toolbar',                //工具按钮用哪个容器
+            striped: true,                      //是否显示行间隔色
+            cache: false,                       //是否使用缓存，默认为true，所以一般情况下需要设置一下这个属性（*）
+            pagination: true,                   //是否显示分页（*）
+            sortable: true,                     //是否启用排序
+            sortOrder: "asc",                   //排序方式
+            dataField:"rows",
+            totalField:"rowTotal",
+            popperConfig:"",
+            queryParams: function (params) {
+                var temp = {
+                    limit: params.limit,                         //页面大小
+                    offset: (params.offset / params.limit) + 1,   //页码
+                    sort: params.sort,      //排序列名
+                    sortOrder: params.order//排位命令（desc，asc）
+                };
+                return temp;
+            },         //传递参数（*）
+            sidePagination: "server",           //分页方式：client客户端分页，server服务端分页（*）
+            pageNumber:1,                       //初始化加载第一页，默认第一页
+            pageSize: 10,                       //每页的记录行数（*）
+            pageList: [10, 25, 50, 100],        //可供选择的每页的行数（*）
+            smartDisplay:false,
+            search: false,                      //是否显示表格搜索，此搜索是客户端搜索，不会进服务端，所以，个人感觉意义不大
+            strictSearch: true,
+            showColumns: false,                 //是否显示所有的列
+            showRefresh: false,                 //是否显示刷新按钮
+            minimumCountColumns: 2,             //最少允许的列数
+            clickToSelect: true,                //是否启用点击选中行
+            height: 500,                        //行高，如果没有设置height属性，表格自动根据记录条数觉得表格高度
+            uniqueId: "ID",                     //每一行的唯一标识，一般为主键列
+            showToggle:true,                   //是否显示详细视图和列表视图的切换按钮
+            cardView: false,                    //是否显示详细视图
+            detailView: false,                   //是否显示父子表
+            classes: 'table table-bordered table-hover table-striped', // 样式，table-striped 隔行变色
+            columns: [ // 列详情
+                {
+                    title: '任务名称',// 表头字段名
+                    field: 'taskName',// 数据 key
+                    sortable: true,// 排序
+                    align: 'center'// 居中
+                }, {
+                    title: '任务组',// 表头字段名
+                    field: 'taskGroup',// 数据 key
+                    sortable: true,// 排序
+                    align: 'center'// 居中
+                }, {
+                    title: '系统名称',// 表头字段名
+                    field: 'serviceName',// 数据 key
+                    sortable: true,// 排序
+                    align: 'center'// 居中
+                }, {
+                    title: 'Cron表达式',// 表头字段名
+                    field: 'cronCondition',// 数据 key
+                    sortable: true,// 排序
+                    align: 'center'// 居中
+                }, {
+                    title: '任务备注',
+                    field: 'taskDesc',
+                    align: 'center'
+                }, {
+                    title: '操作',
+                    field: 'id',
+                    align: 'center',
+                    formatter: function (value, row, index) {
+                        var html="<a id='editTask' data-toggle='modal' class='btn-info' data-target='#mymodal' href='/schedule/edit/"+value+"'>修改</a>&nbsp;&nbsp;";
+                        html+="<a id='enabledTask' href='javascript:void(0);' class='edge-to-edge'>禁用</a>&nbsp;&nbsp;";
+                        html+="<a id='taskLog' href='javascript:void(0);' class='edge-to-edge'>日志</a>&nbsp;&nbsp;";
+                        return html;
+                    }
+                }
+            ]
+        });
+    }
+
+    function edit(id) {
+
+    }
+</script>
+</html>

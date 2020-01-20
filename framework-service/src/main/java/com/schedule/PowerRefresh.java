@@ -12,7 +12,7 @@ import lombok.extern.slf4j.Slf4j;
  * @Date 2020/1/8 11:59
  * @Created by 125937
  */
-@ScheduleJob(taskDesc = "权限信息定时刷新任务",executeParam = "{权限信息定时刷新任务}",cronCondition = "0 0/1 * * * ?")
+@ScheduleJob(taskDesc = "权限信息定时刷新任务",executeParam = "{权限信息定时刷新任务}",cronCondition = "0 0 0/1 * * ?")
 @Slf4j
 public class PowerRefresh implements ScheduleJobHandler {
     @Override

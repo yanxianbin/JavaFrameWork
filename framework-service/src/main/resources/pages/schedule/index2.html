@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <title>Table</title>
+    <!--jquery-->
+    <script src="https://cdn.bootcss.com/jquery/3.4.0/jquery.min.js"></script>
+    <!--bootstrap-->
+    <link href="https://cdn.bootcss.com/twitter-bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet">
+<!--    <script src="https://cdn.bootcss.com/popper.js/1.14.7/umd/popper.min.js"></script>-->
+    <script src="https://cdn.bootcss.com/twitter-bootstrap/4.3.1/js/bootstrap.min.js"></script>
+    <!--bootstrap-table-->
+    <link href="https://cdn.bootcss.com/bootstrap-table/1.14.2/bootstrap-table.min.css" rel="stylesheet">
+    <script src="https://cdn.bootcss.com/bootstrap-table/1.14.2/bootstrap-table.min.js"></script>
+    <!--bootstrap-table-lanuage-->
+<!--    <script src="https://cdn.bootcss.com/bootstrap-table/1.14.2/bootstrap-table-locale-all.min.js"></script>-->
+</head>
+<body>
+<div class="container">
+    <div class="select">
+        <select class="form-control" id="locale">
+            <option value="zh-CN" selected>zh-CN</option>
+            <option value="zh-TW">zh-TW</option>
+            <option value="en-US">en-US</option>
+        </select>
+    </div>
+    <div>
+        <table id="table"></table>
+    </div>
+</div>
+<script>
+    var $table = $('#table');
+    var datas = [];
+
+    $(function () {
+        $.ajax({
+            url: "https://examples.wenzhixin.net.cn/examples/bootstrap_table/data?search=&order=asc&offset=0&limit=10",
+            success: function (d) {
+                if (d) {
+                    datas = d.rows;
+                    // 初始化表格
+                    initTable();
+                }
+            }
+        });
+    });
+
+    $('#locale').change(initTable);
+
+    function initTable() {
+        // 先销毁再创建
+        $table.bootstrapTable('destroy').bootstrapTable({
+            data: datas,// 表格数据
+            locale: $('#locale').val(),// 语言
+            classes: 'table table-bordered table-hover table-striped', // 样式，table-striped 隔行变色
+            columns: [ // 列详情
+                {
+                    title: 'ID',// 表头字段名
+                    field: 'id',// 数据 key
+                    sortable: true,// 排序
+                    align: 'center',// 居中
+                }, {
+                    title: 'Item Name',
+                    field: 'name',
+                    align: 'center'
+                }, {
+                    title: 'Item Price',
+                    field: 'price',
+                    align: 'center',
+                    formatter: function (value, row, index) { // 处理该行数据
+                        if (value == '$0') {
+                            return "haha!"
+                        } else {
+                            return value;
+                        }
+                    }
+                }
+            ]
+        });
+    }
+</script>
+</body>
+</html>

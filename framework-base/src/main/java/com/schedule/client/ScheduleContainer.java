@@ -86,6 +86,8 @@ public class ScheduleContainer implements ApplicationContextAware, ApplicationRu
             List<ScheduleInfo> dbInfos = scheduleService.find(query);
             if (CollectionUtils.isEmpty(dbInfos)) {
                 scheduleService.insert(entry.getValue());
+                //添加调度任务
+                QuartzManager.addJob(entry.getValue());
             } else {
                 ScheduleInfo scheduleInfo=entry.getValue();
                 ScheduleInfo dbScheduleInfo=dbInfos.get(0);
@@ -93,9 +95,11 @@ public class ScheduleContainer implements ApplicationContextAware, ApplicationRu
                 scheduleInfo.setCreateBy(dbScheduleInfo.getCreateBy());
                 scheduleInfo.setCreateTime(dbScheduleInfo.getCreateTime());
                 scheduleService.update(scheduleInfo);
+                if(dbInfos.get(0).getTaskState().equals("启用")){
+                    //添加调度任务
+                    QuartzManager.addJob(entry.getValue());
+                }
             }
-            //添加调度任务
-            QuartzManager.addJob(entry.getValue());
             log.info("ScheduleJobHandler taskName register success:{}",entry.getKey());
         }
     }

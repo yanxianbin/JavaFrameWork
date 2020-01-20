@@ -31,7 +31,7 @@ public class RedisUtils extends RedisAbstractService {
     public static boolean tryLock(String key, long timeOut) {
         RLock lock = getRedissonClient().getFairLock(key);
         timeOut = timeOut * 1000;
-        Boolean isLock = lock.tryLock(timeOut, MAX_WAIT_TIME, TimeUnit.MILLISECONDS);
+        Boolean isLock = lock.tryLock(MAX_WAIT_TIME,timeOut, TimeUnit.MILLISECONDS);
         return isLock;
     }
 
