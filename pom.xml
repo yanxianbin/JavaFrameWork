@@ -8,6 +8,7 @@
         <module>framework-client</module>
         <module>framework-service</module>
         <module>framework-base</module>
+        <module>framework-spring-ioc</module>
     </modules>
     <parent>
         <groupId>org.springframework.boot</groupId>

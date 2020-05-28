@@ -1,9 +1,11 @@
 package com.utils;
 
 import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.EmbeddedValueResolverAware;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringValueResolver;
 
@@ -13,6 +15,7 @@ import java.util.Map;
  * Spring 工具类
  */
 @Component
+@Scope(scopeName = ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 @SuppressWarnings("unchecked")
 public class SpringUtils implements ApplicationContextAware, EmbeddedValueResolverAware {
 
