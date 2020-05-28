@@ -7,10 +7,10 @@ spring:
   application:
     name: framework-client
   datasource:
-    type: org.springframework.jdbc.datasource.SimpleDriverDataSource
-    url: jdbc:mysql://127.0.0.1:3306/java_framework
-    driver-class-name: com.mysql.jdbc.Driver
-    username: yxb
+    type: org.springframework.jdbc.datasource.DriverManagerDataSource
+    url: jdbc:mysql://127.0.0.1:3306/carbao?serverTimezone=UTC
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: root
     password: 123456
     tomcat:
       max-idle: 10
@@ -92,7 +92,7 @@ spring:
   thymeleaf:
     cache: false
     prefix: classpath:/pages/
-    check-template-location: false
+    check-template-location: true
     suffix: .html
     encoding: utf-8
     mode: LEGACYHTML5
@@ -111,4 +111,9 @@ eureka:
     service-url:
       defaultZone: http://127.0.0.1:10994/eureka
     registry-fetch-interval-seconds: 30
-
+mybatis:
+  configuration:
+    map-underscore-to-camel-case: true
+    default-fetch-size: 100
+    default-statement-timeout: 30
+  mapperLocations: classpath*:com/mapper/*.xml
