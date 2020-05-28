@@ -47,6 +47,13 @@ public class ScheduleController {
         return mv;
     }
 
+    @RequestMapping("/index3")
+    public ModelAndView index3(){
+        ModelAndView mv=new ModelAndView("schedule/index3");
+        mv.addObject("dd","sdfd");
+        return mv;
+    }
+
     @RequestMapping(value = "/pageInfo",method = RequestMethod.GET )
     @ResponseBody
     public PageInfo<ScheduleInfo> pageInfo(String taskName,String taskDesc,int limit, int offset){

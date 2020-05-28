@@ -38,6 +38,7 @@ public class UserInfoController implements UserInfoRemotingService {
         List<String> numbers=IdGeneratorClient.getNumberList(numberCode,size);
         numbers.add(number);
         //userInfoService.saveUser();
+
         UserInfo userInfo=userInfoService.findById(662356873630060544L);
         List<UserInfo> list=userInfoService.selectAll(userInfo);
         UserInfo queryT=new UserInfo();

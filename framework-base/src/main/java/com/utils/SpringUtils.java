@@ -4,6 +4,7 @@ import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
+import org.springframework.context.ApplicationEvent;
 import org.springframework.context.EmbeddedValueResolverAware;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -61,5 +62,13 @@ public class SpringUtils implements ApplicationContextAware, EmbeddedValueResolv
             // 获取失败则返回null
             return null;
         }
+    }
+
+    /**
+     * 发布事件
+     * @param event
+     */
+    public static void publisherEvent(ApplicationEvent event){
+        applicationContext.publishEvent(event);
     }
 }
