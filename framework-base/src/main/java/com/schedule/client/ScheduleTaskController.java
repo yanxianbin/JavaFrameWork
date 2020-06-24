@@ -36,6 +36,9 @@ public class ScheduleTaskController {
     @RequestMapping(value = "/schedule/executeTask", method = {RequestMethod.POST})
     public ResponseData<Boolean> executeTask(@RequestBody ScheduleRequest request) {
         ResponseData<Boolean> responseData = new ResponseData<>();
+        if(true) {
+            return responseData;
+        }
         log.info("executeTask scheduleId:{} taskName:{} param:{}", request.getScheduleId(), request.getTaskInfo().getTaskName(), request.getTaskInfo().getExecuteParam());
         ScheduleJobHandler scheduleJobHandler = ScheduleContainer.getScheduleJobHandler(request.getTaskInfo().getTaskName());
         if (Objects.nonNull(scheduleJobHandler)) {

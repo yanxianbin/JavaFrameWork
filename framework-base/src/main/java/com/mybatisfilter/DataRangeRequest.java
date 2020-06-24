@@ -1,4 +1,4 @@
-package com.request;
+package com.mybatisfilter;
 
 import java.io.Serializable;
 

@@ -147,6 +147,7 @@ public class MqServiceClient {
      * @return
      */
     private Queue createQueue(String queue) {
+        createDealQueue();
         Map<String, Object> param = new HashMap<String, Object>();
         param.put(X_DEAD_LETTER_EXCHANGE, DLQ_ROUTING_EXCHANGE);//设置死信交换机
         param.put(X_DEAD_LETTER_ROUTING_KEY, DLQ_NAME);//设置死信routingKey

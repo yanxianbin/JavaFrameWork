@@ -1,6 +1,6 @@
 package com.controller.common;
 
-import com.request.DataRangeRequest;
+import com.mybatisfilter.DataRangeRequest;
 import org.springframework.stereotype.Controller;
 
 import java.util.HashMap;

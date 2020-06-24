@@ -11,5 +11,13 @@
 
     <artifactId>framework-spring-ioc</artifactId>
 
+    <dependencies>
+        <dependency>
+        <artifactId>framework-api</artifactId>
+        <groupId>javaframework</groupId>
+        <version>1.0.1-SNAPSHOT</version>
+        </dependency>
+    </dependencies>
+
 
 </project>

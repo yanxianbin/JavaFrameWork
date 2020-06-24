@@ -2,6 +2,7 @@ package com.rules;
 
 import com.rules.mode.MainMode;
 import com.rules.mode.SubMode;
+import io.vavr.Tuple2;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.*;
@@ -14,8 +15,6 @@ import java.util.*;
  */
 public class AviatorService {
 
-    @Autowired
-    private AviatorUtils aviatorUtils;
 
     /**
      * 规则信息
@@ -37,6 +36,7 @@ public class AviatorService {
         subMode.setPhone("02023343434342339234");
         subMode.setAddress("陕西省渭南市潼关县城关街道布施河村湖滨路17号 上海上海市青浦区华新镇朱长村华南路613号 上海上海市青浦区华新镇朱长村华南路613号上海上海市青浦区华新镇朱长村华南路613号上海上海市青浦区华新镇朱长村华南路613号上海上海市青浦区华新镇朱长村华南路613号上海上海市青浦区华新镇朱长村华南路613号上海上海市青浦区华新镇朱长村华南路613号上海上海市青浦区华新镇朱长村华南路613号");
         mainMode.setSubMode(subMode);
-        //AviatorService.aviatorUtils.validParam(mainMode,ruleInfo);
+        Tuple2<Boolean, String>  tuple2=AviatorUtils.validParam(mainMode,ruleInfo);
+        System.out.println(tuple2._2);
     }
 }

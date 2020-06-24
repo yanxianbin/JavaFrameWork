@@ -1,7 +1,7 @@
 package com.service.common;
 
 import com.mybatisfilter.DataScopeAuthService;
-import com.request.DataRangeRequest;
+import com.mybatisfilter.DataRangeRequest;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;

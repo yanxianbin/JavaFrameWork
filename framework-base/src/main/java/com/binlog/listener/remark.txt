@@ -1,0 +1,8 @@
+[mysqld]
+log-bin=mysql-bin  # 开启binlog
+binlog-format=ROW  # 设置Binary Log记录方式为Row
+server_id=1 # 记住id 后续开发会使用
+
+//查看 是否开启了 binlog
+show variables like 'log_bin';
+

@@ -15,6 +15,7 @@ import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
+import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.core.annotation.Order;
@@ -28,9 +29,9 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Component
-@Order(1)
+@Order(10086)
 @Slf4j
-public class InitializationMqListener implements ApplicationRunner, ApplicationContextAware {
+public class InitializationMqListener implements CommandLineRunner, ApplicationContextAware {
 
     /**
      * 线程安全的Map
@@ -55,12 +56,12 @@ public class InitializationMqListener implements ApplicationRunner, ApplicationC
     @Autowired
     private MqServiceClient mqListenerInitService;
 
-    @Override
-    public void run(ApplicationArguments args) throws Exception {
-        //启动Mq监听
-        mqListenerInitService.initListenerContainer(consumerMap);
-        numberGeneratorService.registerNumberConfig(numberConfigMap);
-    }
+//    @Override
+//    public void run(ApplicationArguments args) throws Exception {
+//        //启动Mq监听
+//        mqListenerInitService.initListenerContainer(consumerMap);
+//        numberGeneratorService.registerNumberConfig(numberConfigMap);
+//    }
 
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
@@ -138,5 +139,12 @@ public class InitializationMqListener implements ApplicationRunner, ApplicationC
         for(Map.Entry<String,Object> entry:configs.entrySet()){
             numberConfigMap.put(entry.getKey(),entry.getValue());
         }
+    }
+
+    @Override
+    public void run(String... args) throws Exception {
+        //启动Mq监听
+        mqListenerInitService.initListenerContainer(consumerMap);
+        numberGeneratorService.registerNumberConfig(numberConfigMap);
     }
 }

@@ -2,16 +2,24 @@ server:
   port: 9088
   servlet:
     context-path: /
+binlog:
+  database:
+    host: 127.0.0.1
+    port: 3306
+    serviceid: 1
+    username: root
+    password: 123456
+    tables: java_framework.user_info
 
 spring:
   application:
     name: framework-client
   datasource:
     type: org.springframework.jdbc.datasource.DriverManagerDataSource
-    url: jdbc:mysql://127.0.0.1:3306/carbao?serverTimezone=UTC
+    url: jdbc:mysql://${binlog.database.host}:${binlog.database.port}/java_framework?serverTimezone=UTC
     driver-class-name: com.mysql.cj.jdbc.Driver
-    username: root
-    password: 123456
+    username: ${binlog.database.username}
+    password: ${binlog.database.password}
     tomcat:
       max-idle: 10
       max-wait: 10000
@@ -19,11 +27,11 @@ spring:
       initial-size: 5
   redis:
     #redis机器ip
-    hostname: 127.0.0.1
+    hostname: 192.168.202.103
     #redis端口
     port: 6379
     #redis密码
-    password:
+    password:  123456
     #redis超时时间（毫秒），如果不设置，取默认值2000
     timeout: 10000
     #最大空闲数
@@ -48,7 +56,7 @@ spring:
   redisson:
     #Redisson配置-单节点配置
     singleServerConfig:
-      address: "redis://127.0.0.1:6379"
+      address: "redis://192.168.202.103:6379"
       clientName: client1
       database: 9 #选择使用哪个数据库0~15
       idleConnectionTimeout: 10000
@@ -65,6 +73,7 @@ spring:
       connectionMinimumIdleSize: 32
       connectionPoolSize: 64
       dnsMonitoringInterval: 5000
+      passWord: 123456
       #dnsMonitoring: false
     threads: 0
     nettyThreads: 0
@@ -72,9 +81,9 @@ spring:
       class: "org.redisson.codec.JsonJacksonCodec"
     transportMode: "NIO"
   rabbitmq:
-    addresses: 127.0.0.1
+    addresses: 192.168.202.103
     port: 5672
-    username: admin
+    username: yanxianbin
     password: admin
     virtual-host: my_vhost
     maxretrys: 10
@@ -84,7 +93,7 @@ spring:
         max-concurrency: 10
   data:
     mongodb:
-      uri: mongodb://test:123456@127.0.0.1:27017/?readPreference=secondaryPreferred
+      uri: mongodb://admin:123456@192.168.202.103:27017/?readPreference=secondaryPreferred
       database: testDB
       authentication-database: admin
       auto-index-creation: true
@@ -109,7 +118,7 @@ rsa:
 eureka:
   client:
     service-url:
-      defaultZone: http://127.0.0.1:7001/eureka
+      defaultZone: http://192.168.202.103:7001/eureka
     registry-fetch-interval-seconds: 30
 mybatis:
   configuration:
